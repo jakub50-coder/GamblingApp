@@ -1,0 +1,174 @@
+
+<!-- This is the login page where you can either create a new account or log in to a existing account-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login Page</title>
+    </head>
+    <body>
+        <div id="loginPage">
+            <h1>Gaming Hub</h1>
+            <p>Your favorite card games</p>
+        </div>
+        <div id="authTabs"> <!-- This is the login button and the sign up button -->
+            <button id="loginTab" onclick="switchTab('login')">Login</button>
+            <button id="signupTab" onclick="switchTab('signup')">Sign up</button>
+        </div>
+
+        <div id="loginForm"> <!-- Username and password text boxes for login -->
+            <div>
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" placeholder="Enter your username">
+            </div>
+            <div>
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <p id="loginError"></p>
+            <button id="loginBtn" onclick="handleLogin()">Login</button>
+        </div>
+
+        <div id="signupForm"> <!-- Username, password, and confirm password fields for signup-->
+            <div>
+                <label for="signupUsername">Username</label>
+                <input type="text" id="signupUsername" placeholder="Create a username">
+            </div>
+            <div>
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password">
+            </div>
+            <div>
+                <label for="signupConfirm">Confirm Password</label>
+                <input type="password" id="signupConfirm" placeholder="Confirm your password">
+            </div>
+            <p id="signupError"></p>
+            <button id="signupBtn" onclick="handleSignup()">Create Account</button>
+        </div>
+
+        <script>
+            const API_BASE = 'http://localhost:8080/api';
+
+            document.getElementById('signupForm').style.display = 'none';
+            //when the user hasn't logged out of the page
+            if (localStorage.getItem('token')) {
+                window.location.href = 'welcome.html';
+            }
+            //switches between the login and signup forms
+            function switchTab(tab) {
+                if (tab === 'login') {
+                    document.getElementById('loginForm').style.display = 'block';
+                    document.getElementById('signupForm').style.display = 'none';
+                } else {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('signupForm').style.display = 'block';
+                }
+            }
+            //gets the login information and sends it to the server to see if it exists
+            async function handleLogin() {
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const errorEl = document.getElementById('loginError');
+
+                errorEl.textContent = '';
+
+                if (!username || !password) {
+                    errorEl.textContent = 'Please enter both username and password.';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        if (data.token) localStorage.setItem('token', data.token);
+                        if (data.username) localStorage.setItem('username', data.username);
+                        if (data.coins !== undefined) localStorage.setItem('coins', data.coins);
+                        window.location.href = 'welcome.html';
+                    } else {
+                        errorEl.textContent = data.message || 'Login failed.';
+                    }
+                } catch (err) {
+                    errorEl.textContent = 'Could not connect to the server.';
+                }
+            }
+            //deals with the signup process and makes sure that the password is at least 12 characters long and that the passwords match
+            async function handleSignup() {
+                const username = document.getElementById('signupUsername').value.trim();
+                const password = document.getElementById('signupPassword').value;
+                const confirm = document.getElementById('signupConfirm').value;
+                const errorEl = document.getElementById('signupError');
+
+                errorEl.textContent = '';
+                //makes sure all fields are filled out
+                if (!username || !password || !confirm) {
+                    errorEl.textContent = 'Please fill in all fields.';
+                    return;
+                }
+                //mmakes sure that both passwords match
+                if (password !== confirm) {
+                    errorEl.textContent = 'Passwords do not match.';
+                    return;
+                }
+
+                try {
+                    //create an aacount
+                    const signupResponse = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                    });
+
+                    const signupData = await signupResponse.json();
+
+                    if (!signupResponse.ok) {
+                        errorEl.textContent = signupData.message || 'Signup failed.';
+                        return;
+                    }
+                    //go straignt to the login page
+                    const loginResponse = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                    });
+
+                    const loginData = await loginResponse.json();
+
+                    if (loginResponse.ok) {
+                        localStorage.setItem('token', loginData.token);
+                        localStorage.setItem('username', loginData.username);
+                        localStorage.setItem('coins', loginData.coins);
+                        window.location.href = 'welcome.html';
+                    } 
+                    else {
+
+                        errorEl.textContent = 'Account created! Please log in.';
+                        switchTab('login');
+                        document.getElementById('loginUsername').value = username;
+                    }
+
+                } 
+                catch (err) {
+                        errorEl.textContent = 'Could not connect to the server.';
+                }   
+            }
+            //user can press enter instead of clicking the buttons if they want
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const loginVisible = document.getElementById('loginForm').style.display !== 'none';
+                    if (loginVisible) handleLogin();
+                    else handleSignup();
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,182 @@
+<!--This is the hisotry page where it shows the last 7 days of the user activity in terms of coin transactions-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gaming History</title>
+    </head>
+    <body>
+        <!-- All play stats, same as in the welcome page-->
+        <div id="appLayout">
+            <aside id="sidebar">
+
+                <div id="sidebarLogo">
+                    <span>🎰</span>
+                    <span>Gaming Hub</span>
+                </div>
+
+                <div id="sidebarUser">
+                    <div id="userAvatar">?</div>
+                    <div>
+                        <div id="sidebarUsername">Loading...</div>
+                        <div>Player</div>
+                    </div>
+                </div>
+
+                <div id="coinDisplay">
+                    <div>Coins</div>
+                    <div>
+                        <span>🪙</span>
+                        <span id="sidebarCoins">—</span>
+                    </div>
+                    <div id="refillTimer"></div>
+                </div>
+
+                <nav id="sidebarNav">
+                    <div>Menu</div>
+                    <div onclick="window.location.href='welcome.html'">
+                        <span>🎮</span>
+                        <span>Games</span>
+                    </div>
+                    <div onclick="window.location.href='welcome.html?section=settings'">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </div>
+                    <div id="navHistory">
+                        <span>📊</span>
+                        <span>History</span>
+                    </div>
+                </nav>
+                <!-- Shows the transaction history plus total won, total bet, refilled amount, and net result-->
+                <div id="sidebarFooter">
+                    <button onclick="handleLogout()">🚪 Logout</button>
+                </div>
+            </aside>
+
+            <main id="mainContent">
+                <h2>Transaction History</h2>
+                <p>Last 7 days of activity</p>
+
+                <div id="summaryGrid">
+                    <div>
+                        <div id="statWon">-</div>
+                        <div>Total Won</div>
+                    </div>
+                    <div>
+                        <div id="statBet">-</div>
+                        <div>Total Bet</div>
+                    </div>
+                    <div>
+                        <div id="statRefilled">-</div>
+                        <div>Refilled</div>
+                    </div>
+                    <div>
+                        <div id="statNet">-</div>
+                        <div>Net Result</div>
+                    </div>
+                </div>
+
+                <div id="transactionList">
+                    <p id="loadingMsg">Loading transactions...</p>
+                </div>
+
+                <button onclick="window.location.href='welcome.html'">
+                    Back to Games
+                </button>
+            </main>
+        </div>
+
+        <script>
+            const API_BASE = 'http://localhost:8080/api';
+
+            if(!localStorage.getItem('token')){
+                window.location.href = 'login.html';
+            }
+            //used to call api's
+            async function apiRequest(endpoint, method = 'GET', body = null) {
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+                const options = { method, headers };
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+                if(response.status === 401 || response.status === 403){
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            }
+            //calls /api/user/transactions and fills in all the information
+            async function loadUserData(){
+                const response = await apiRequest('/user/me');
+                if(!response){
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('sidebarUsername').textContent = data.username;
+                document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
+                document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
+            }
+
+            async function loadTransactions(){
+                const response = await apiRequest('/user/transactions');
+                if(!response){
+                    return;
+                }
+                const data = await response.json();
+
+                document.getElementById('statWon').textContent = `+${data.totalWon}`;
+                document.getElementById('statBet').textContent = `${data.totalBet}`;
+                document.getElementById('statRefilled').textContent = `${data.totalRefilled}`;
+
+                const net = data.netResult;
+                document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
+
+                const listEl = document.getElementById('transactionList');
+                document.getElementById('loadingMsg').style.display = 'none';
+
+                if (!data.transactions || data.transactions.length === 0) {
+                    listEl.innerHTML = '<p>No transactions in the last 7 days.</p>';
+                    return;
+                }
+
+                data.transactions.forEach(t => {
+                    const item = document.createElement('div');
+                    const icon = t.type === 'WIN' ? '✅' :
+                                 t.type === 'BET' ? '🎰' : '🔄';
+                    const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
+                    const date = new Date(t.createdAt);
+                    const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+                    item.innerHTML =
+                        `<span>${icon}</span>
+                        <div>
+                            <div>${t.type}</div>
+                            <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
+                        </div>
+                        <div>${amountText} coins</div>`;
+
+                    listEl.appendChild(item);
+                });
+            }
+            //handles logout
+            function handleLogout(){
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+
+            if(localStorage.getItem('theme') === 'light'){
+                document.body.classList.add('light-mode');
+            }
+            loadUserData();
+            loadTransactions();
+        </script>
+    </body>
+</html>

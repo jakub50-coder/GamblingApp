@@ -1,0 +1,226 @@
+<!-- this is the welcome page where you see your stats and settings-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome Page</title>
+    </head>
+    <body>
+        <div id="appLayout">
+            <aside id="sidebar">
+
+                <div id="sidebarLogo">
+                    <span>🎰</span>
+                </div>
+                <span>Player Stats</span>
+            </div>
+            <!--Player name-->
+            <div id="sidebarUser">
+                <div id="userAvatar">?</div>
+            </div>
+            <div>
+                <div id="sidebarUsername">Loading...</div>
+                <div>Player</div>
+            </div>
+            <!--Coin amount-->
+            <div id="coinDisplay">
+                <div>Coins</div>
+                <div>
+                    <span>🪙</span>
+                    <span id="sidebarCoins">—</span>
+                </div>
+                <div id="refillTimer"></div>
+            </div>
+            <!--Menu that includes games, settings, and history-->
+            <nav id="sidebarNav">
+                <div>Menu</div>
+                <div id="navGames" onclick="showSection('games')">
+                    <span>🎮</span>
+                    <span>Games</span>
+                </div>
+                <div id="navSettings" onclick="showSection('settings')">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </div>
+                <div id="navHistory" onclick="window.location.href='history.html'">
+                    <span>📊</span>
+                    <span>History</span>
+                </div>
+            </nav>
+
+            <div id="sidebarFooter">
+                <button onclick="handleLogout()"> Logout</button>
+            </div>
+        </aside>
+
+        <main id="mainContent">
+            <!--Menu with games to play-->
+            <div id="sectionGames">
+                <h2>Games</h2>
+                <p>Choose a game to play!</p>
+                <div id="gamesGrid">
+
+                    <div id="blackjackCard" onclick="goToBlackjack()">
+                        <h3>Blackjack</h3>
+                        <p>Beat the deal to 21 without going over.</p>
+                        <button id="blackjackBtn">Play Now</button>
+                        <p id="blackjackLocked"></p>
+                    </div>
+
+                    <div id="comingSoon1">
+                        <h3>More Games</h3>
+                        <p>Coming soon!</p>
+                    </div>
+                </div>
+            </div>
+            <!--Settings section-->
+            <div id="sectionSettings" style="display: none">
+                <h2>Settings</h2>
+                <p>Customize your experience</p>
+
+                <div id="themeRow">
+                    <div>
+                        <div>Light Mode</div>
+                        <div>Switch between light and dark mode</div>
+                    </div>
+                    <input type="checkbox" id="themeToggle" onchange="handleThemeToggle()">
+                </div>
+
+                <div id="volumeRow">
+                    <div>
+                        <div>Volume</div>
+                        <div>Sound effects volume</div>
+                    </div>
+                    <div>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="handleVolumeChange()">
+                        <span id="volumeValue">50%</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        </div>
+
+        <script>
+            const API_BASE = 'http://localhost:8080/api';
+
+            console.log('Token:', localStorage.getItem('token'));
+            //Makes sure that the user had to sign in
+            if(!localStorage.getItem('token')) {
+                window.location.href = 'login.html';
+            }
+            //function to make API requests
+            async function apiRequest(endpoint, method = 'GET', body = null){
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+
+                const options = {method, headers};
+                if(body){
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+                if(response.status === 401 || response.status === 403){
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                return response;
+            }
+            //calls the API /api/usser/me
+            async function loadUserData(){
+                const response = await apiRequest('/user/me');
+                if(!response){
+                    return;
+                }
+
+                const data = await response.json();
+
+                document.getElementById('sidebarUsername').textContent = data.username;
+                document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
+                document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
+
+                localStorage.setItem('coins', data.coins);
+
+                if(data.secondsUntilRefill && data.secondsUntilRefill > 0){
+                    startRefillTimer(data.secondsUntilRefill);
+                }
+
+                if(data.coins < 10){
+                    document.getElementById('blackjackBtn').disabled = true;
+                    document.getElementById('blackjackLocked').textContent = 'You need to have at least 10 coins to play this game';
+                }
+            }
+            //starts the refill time when the user can refill coins
+            function startRefillTimer(seconds){
+                const timerEl = document.getElementById('refillTimer');
+                timerEl.style.display = 'block';
+
+                function update(){
+                    if(seconds <= 0){
+                        timerEl.textContent = 'Refill ready - refresh!';
+                        return;
+                    }
+                    const h = Math.floor(seconds / 3600);
+                    const m = Math.floor((seconds % 3600) / 60);
+                    const s = seconds % 60;
+                    timerEl.textContent = `Refill in ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+                    seconds--;
+                    setTimeout(update,1000);
+                }
+                update();
+            }
+            //changes sections
+            function showSection(section){
+                document.getElementById('sectionGames').style.display = section === 'games' ? 'block' : 'none';
+                document.getElementById('sectionSettings').style.display = section === 'settings' ? 'block' : 'none';
+            }
+            //this is for light and dark mode in settings
+            function handleThemeToggle() {
+                const isLight = document.getElementById('themeToggle').checked;
+                if(isLight){
+                    document.body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                }
+                else {
+                    document.body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                }
+            }
+            //deals with the volume change in settings
+            function handleVolumeChange(){
+                const value = document.getElementById('volumeSlider').value;
+                document.getElementById('volumeValue').textContent = `${value}%`;
+                localStorage.setItem('volume', value);
+            }
+            //goes to the blackjack game
+            function goToBlackjack(){
+                const coins = parseInt(localStorage.getItem('coins') || '0');
+                if(coins < 10){
+                    return;
+                }
+                window.location.href = 'blackjack.html';
+            }
+            //allows the user to logout
+            function handleLogout(){
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
+            //save either light or dark mode
+            const savedTheme = localStorage.getItem('theme');
+            if(savedTheme === 'light'){
+                document.body.classList.add('light-mode');
+                document.getElementById('themeToggle').checked = true;
+            }
+            //save your volume preference
+            const savedVolume = localStorage.getItem('volume') || '50';
+            document.getElementById('volumeSlider').value = savedVolume;
+            document.getElementById('volumeValue').textContent = `${savedVolume}%`;
+
+            loadUserData();
+        </script>
+    </body>
+</html>
