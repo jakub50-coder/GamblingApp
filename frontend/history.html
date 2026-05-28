@@ -1,92 +1,135 @@
 <!--This is the hisotry page where it shows the last 7 days of the user activity in terms of coin transactions-->
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gaming History</title>
-    </head>
-    <body>
-        <!-- All play stats, same as in the welcome page-->
-        <div id="appLayout">
-            <aside id="sidebar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Hub — History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
 
-                <div id="sidebarLogo">
-                    <span>🎰</span>
-                    <span>Gaming Hub</span>
-                </div>
+    <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
+    <aside class="sidebar">
 
-                <div id="sidebarUser">
-                    <div id="userAvatar">?</div>
-                    <div>
-                        <div id="sidebarUsername">Loading...</div>
-                        <div>Player</div>
-                    </div>
-                </div>
-
-                <div id="coinDisplay">
-                    <div>Coins</div>
-                    <div>
-                        <span>🪙</span>
-                        <span id="sidebarCoins">—</span>
-                    </div>
-                    <div id="refillTimer"></div>
-                </div>
-
-                <nav id="sidebarNav">
-                    <div>Menu</div>
-                    <div onclick="window.location.href='welcome.html'">
-                        <span>🎮</span>
-                        <span>Games</span>
-                    </div>
-                    <div onclick="window.location.href='welcome.html?section=settings'">
-                        <span>⚙️</span>
-                        <span>Settings</span>
-                    </div>
-                    <div id="navHistory">
-                        <span>📊</span>
-                        <span>History</span>
-                    </div>
-                </nav>
-                <!-- Shows the transaction history plus total won, total bet, refilled amount, and net result-->
-                <div id="sidebarFooter">
-                    <button onclick="handleLogout()">🚪 Logout</button>
-                </div>
-            </aside>
-
-            <main id="mainContent">
-                <h2>Transaction History</h2>
-                <p>Last 7 days of activity</p>
-
-                <div id="summaryGrid">
-                    <div>
-                        <div id="statWon">-</div>
-                        <div>Total Won</div>
-                    </div>
-                    <div>
-                        <div id="statBet">-</div>
-                        <div>Total Bet</div>
-                    </div>
-                    <div>
-                        <div id="statRefilled">-</div>
-                        <div>Refilled</div>
-                    </div>
-                    <div>
-                        <div id="statNet">-</div>
-                        <div>Net Result</div>
-                    </div>
-                </div>
-
-                <div id="transactionList">
-                    <p id="loadingMsg">Loading transactions...</p>
-                </div>
-
-                <button onclick="window.location.href='welcome.html'">
-                    Back to Games
-                </button>
-            </main>
+        <div class="sidebar-logo">
+            <span class="logo-icon">🎰</span>
+            <div class="logo-text">Gaming Hub</div>
         </div>
 
+        <div class="sidebar-profile">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <div class="user-details">
+                <div class="user-name" id="sidebarUsername">Loading...</div>
+                <div class="user-role">Player</div>
+            </div>
+        </div>
+
+        <div class="sidebar-coins">
+            <div class="coins-label">Coins</div>
+            <div class="coins-amount">
+                🪙 <span id="sidebarCoins">—</span>
+            </div>
+            <div class="coins-refill" id="refillTimer"></div>
+        </div>
+
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Navigation</div>
+
+            <button class="nav-btn"
+                    onclick="window.location.href='welcome.html'">
+                <span class="nav-icon">🎮</span> Games
+            </button>
+
+            <button class="nav-btn"
+                    onclick="window.location.href='welcome.html?section=settings'">
+                <span class="nav-icon">⚙️</span> Settings
+            </button>
+
+            <button class="nav-btn active">
+                <span class="nav-icon">📊</span> Transaction History
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="handleLogout()">
+                🚪 Logout
+            </button>
+        </div>
+
+    </aside>
+    <!-- ── MAIN CONTENT ──────────────────────────────────── -->
+    <main class="main-content with-right-panel">
+
+        <div class="history-header">Transaction History</div>
+
+        <!-- Transaction list -->
+        <div class="transaction-card" id="transactionCard">
+            <div class="no-transactions" id="loadingMsg">
+                Loading transactions...
+            </div>
+        </div>
+    </main>
+
+    <aside class="right-panel">
+
+        <!-- Top half — overall stats -->
+        <div class="right-panel-section">
+            <div class="right-panel-title">Overall (filtered)</div>
+
+            <div class="stat-item">
+                <span class="stat-name">🪙 Coins Won</span>
+                <span class="stat-val positive" id="statWon">—</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-name">🎰 Coins Bet</span>
+                <span class="stat-val negative" id="statBet">—</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-name">❌ Coins Lost</span>
+                <span class="stat-val negative" id="statLost">—</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-name">🔄 Coins Refilled</span>
+                <span class="stat-val gold" id="statRefilled">—</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-name">📈 Net Coins</span>
+                <span class="stat-val" id="statNet">—</span>
+            </div>
+        </div>
+
+        <!-- Bottom half — filters -->
+        <div class="right-panel-section">
+            <div class="right-panel-title">Filters</div>
+
+            <div class="filter-group">
+                <label class="filter-label">Time Period</label>
+                <select class="filter-select" id="filterDays"
+                        onchange="applyFilters()">
+                    <option value="7">Last 7 days</option>
+                    <option value="14">Last 14 days</option>
+                    <option value="30">Last 30 days</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Transaction Type</label>
+                <select class="filter-select" id="filterType"
+                        onchange="applyFilters()">
+                    <option value="all">All Transactions</option>
+                    <option value="WIN">Wins Only</option>
+                    <option value="BET">Bets Only</option>
+                    <option value="REFILL">Refills Only</option>
+                </select>
+            </div>
+        </div>
+    </aside>
+</div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             const API_BASE = 'http://localhost:8080/api';
 
@@ -166,6 +209,18 @@
                     listEl.appendChild(item);
                 });
             }
+            //for the dark mode
+            function applyTheme(){
+                const savedTheme = localStorage.getItem('theme') || 'default';
+                document.body.classList.remove('dark-mode', 'light-mode');
+
+                if(savedTheme === 'dark'){
+                    document.body.classList.add('dark-mode');
+                }
+                else if(savedTheme === 'light'){
+                    document.body.classList.add('light-mode');
+                }
+            }
             //handles logout
             function handleLogout(){
                 localStorage.clear();
@@ -177,6 +232,7 @@
             }
             loadUserData();
             loadTransactions();
+            applyTheme();
         </script>
     </body>
 </html>
