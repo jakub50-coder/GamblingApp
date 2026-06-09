@@ -38,11 +38,16 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input type="password" id="loginPassword" class="form-input"
-                                   placeholder="Enter your password">
+                            <div class="password-wrap">
+                                <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password">
+                                <button class="password-toggle" type="button" onclick="togglePassword('loginPassword', this)">👁️</button>
+                            </div>
                         </div>
                         <div class="form-error" id="loginError"></div>
                         <button class="btn-submit" onclick="handleLogin()">Login</button>
+                        <div class="forgot-link">
+                            <span onclick="openForgotModel()">Forgot password?</span>
+                        </div>
                     </div>
 
                     <!-- Signup Form -->
@@ -54,20 +59,23 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input type="password" id="signupPassword" class="form-input"
-                                   placeholder="Choose a password">
+                            <div class="password-wrap">
+                                <input type="password" id="signupPassword" class="form-input" placeholder="Enter a password">
+                                <button class="password-toggle" type="button" onclick="togglePassword('signupPassword', this)">👁️</button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Confirm Password</label>
-                            <input type="password" id="signupConfirm" class="form-input"
-                                   placeholder="Confirm your password">
+                            <div class="password-wrap">
+                                <input type="password" id="signupConfirm" class="form-input"placeholder="Confirm your password">
+                                <button class="password-toggle" type="button" onclick="togglePassword('signupConfirm', this)">👁️</button>
+                            </div>
                         </div>
                         <div class="form-error" id="signupError"></div>
                         <button class="btn-submit" onclick="handleSignup()">
                             Create Account
                         </button>
                     </div>
-
                 </div>
             </div>
 
@@ -76,6 +84,24 @@
                 <p>Enjoy your gaming experience!</p>
             </div>
 
+        </div>
+        <!--Forgot password-->
+        <div id="forgotModel" style="display:none">
+            <div id="forgotOverlay" onclick="closeForgotModel()"></div>
+            <div id="forgotBox">
+                <div id="forgotTitle">Forgot Passwords</div>
+                <div id="forgotMessage">Enter your username and we will help you reset your password</div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="forgotUsername" class="form-input" placeholder="Enter your username">
+                </div>
+                <div class="form-error" id="forgotError"></div>
+                <div class="form-success" id="forgotSuccess" style="display:none"> If the username exists, a resent link will be sent.</div>
+                <div id="forgotButtons">
+                    <button id="forgotCancel" onclick="closeForgotModel()">Cancel</button>
+                    <button id="forgotSubmit" onclick="handleForgotPassword()">Submit</button>
+                </div>
+            </div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -94,12 +120,56 @@
                 if (tab === 'login') {
                     document.getElementById('loginForm').style.display = 'block';
                     document.getElementById('signupForm').style.display = 'none';
-                } else {
+                } 
+                else {
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('signupForm').style.display = 'block';
                 }
             }
+            //show or hide password
+            function togglePassword(inputId, btn){
+                const input = document.getElementById(inputId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                } 
+                else {
+                    input.type = 'password';
+                }
+            }
 
+            //Opens the forgot password model
+            function openForgotModel(){
+                document.getElementById('forgotUsername').value ='';
+                document.getElementById('forgotError').textContent = '';
+                document.getElementById('forgotSuccess').style.display = 'none';
+                document.getElementById('forgotModel').style.display ='flex';
+            }
+
+            //Closes the forgot password mode
+            function closeForgotModel(){
+                document.getElementById('forgotModel').style.display = 'none';
+            }
+
+            //handles forgot password submission
+            function handleForgotPassword(){
+                const username = document.getElementById('forgotUsername').value.trim();
+                const errorEl = document.getElementById('forgotError');
+                const successEl = document.getElementById('forgotSuccess');
+
+                errorEl.textContent = '';
+                successEl.style.display = 'none';
+
+                if(!username){
+                    showError('forgotError', 'Please enter your username.');
+                    return;
+                }
+
+                successEl.style.display = 'flex';
+                setTimeout(() => {
+                    closeForgotModel();
+                }, 3000);
+
+            }
             // Gets the login information and sends it to the server
             async function handleLogin() {
                 const username = document.getElementById('loginUsername').value.trim();
@@ -133,6 +203,17 @@
                 } catch (err) {
                     errorEl.textContent = 'Could not connect to the server.';
                 }
+            }
+
+            //Shows a specific error message
+            function showError(id, message){
+                const el = document.getElementById(id);
+                el.textContent = message;
+            }
+
+            function clearError(id){
+                const el = document.getElementById(id);
+                el.textContent = '';
             }
 
             // Handles signup and auto-login after account creation

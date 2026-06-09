@@ -54,7 +54,7 @@ public class SecurityConfig{
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    //Password Encoder by hashing passwords befoore storing htem in a database
+    //Password Encoder by hashing passwords before storing htem in a database
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

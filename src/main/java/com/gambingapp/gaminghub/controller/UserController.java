@@ -2,6 +2,7 @@
 //Patch is method to provide partial updates to a JSON, minor updates
 package com.gambingapp.gaminghub.controller;
 
+import com.gambingapp.gaminghub.dto.ChangePasswordRequest;
 import com.gambingapp.gaminghub.model.CoinTransaction;
 import com.gambingapp.gaminghub.model.User;
 import com.gambingapp.gaminghub.service.UserService;
@@ -43,6 +44,7 @@ public class UserController {
         response.put("username", user.getUsername());
         response.put("coins", user.getCoins());
         response.put("hasSeenBlackjackTutorial", user.isHasSeenBlackjackTutorial());
+        response.put("createdAt", user.getCreatedAt().toString());
 
         if (user.getCoins() < 100) {
             LocalDateTime refillAt = user.getLastRefillAt().plusHours(24);
@@ -97,5 +99,32 @@ public class UserController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "You have seen the blackjack tutorial");
         return ResponseEntity.ok(response);
+    }
+
+    //Patch api/user/password
+    //Changes password after verifying their current password
+    //Returns 400 when wrong
+    @PatchMapping("/password")
+    public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordRequest request, Authentication authentication){
+        String username = authentication.getName();
+        Map<String, String> response = new HashMap<>();
+        if(request.getCurrentPassword() == null || request.getCurrentPassword().isBlank()){
+            response.put("message", "Current password is required.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().length() < 12) {
+            response.put("message", "New password must be at least 12 characters.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        boolean success = userService.changePassword(
+            username, request.getCurrentPassword(), request.getNewPassword());
+        if (success) {
+            response.put("message", "Password updated successfully");
+            return ResponseEntity.ok(response);
+        }
+        else{
+            response.put("message", "Current password is incorrect");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

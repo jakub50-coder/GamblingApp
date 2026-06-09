@@ -145,4 +145,21 @@ public class UserService {
             userRepository.save(user);
         });
     }
+    //Changes a user password after checking the old one
+    @Transactional
+    public boolean changePassword(String username, String currentPassword, String newPassword) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        User user = userOpt.get();
+
+        if(!passwordEncoder.matches(currentPassword, user.getPassword())){
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
 }

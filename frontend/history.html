@@ -1,238 +1,487 @@
-<!--This is the hisotry page where it shows the last 7 days of the user activity in terms of coin transactions-->
+<!-- This is the history page showing the last 7 days of user activity in coin transactions -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaming Hub — History</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="app-layout">
+    <div class="app-layout">
 
-    <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
-    <aside class="sidebar">
+        <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">🎰</span>
+                <div class="logo-text">Gaming Hub</div>
+            </div>
 
-        <div class="sidebar-logo">
-            <span class="logo-icon">🎰</span>
-            <div class="logo-text">Gaming Hub</div>
+            <div class="sidebar-profile">
+                <div class="user-avatar" id="userAvatar" onclick="openProfilePanel()">?</div>
+                <div class="user-details">
+                    <div class="user-name" id="sidebarUsername">Loading...</div>
+                    <div class="user-role">Player</div>
+                </div>
+            </div>
+
+            <div class="sidebar-coins">
+                <div class="coins-label">Coins</div>
+                <div class="coins-amount">🪙 <span id="sidebarCoins">—</span></div>
+                <div class="coins-refill" id="refillTimer"></div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-label">Navigation</div>
+
+                <button class="nav-btn" onclick="window.location.href='welcome.html'">
+                    <span class="nav-icon">🎮</span> Games
+                </button>
+
+                <button class="nav-btn" onclick="window.location.href='welcome.html?section=settings'">
+                    <span class="nav-icon">⚙️</span> Settings
+                </button>
+
+                <button class="nav-btn active">
+                    <span class="nav-icon">📊</span> Transaction History
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- ── MAIN CONTENT ──────────────────────────────────── -->
+        <main class="main-content with-right-panel">
+            <div class="history-header">Transaction History</div>
+
+            <div class="transaction-card" id="transactionList"></div>
+        </main>
+
+        <aside class="right-panel">
+            <!-- Top half — overall stats -->
+            <div class="right-panel-section">
+                <div class="right-panel-title">Overall</div>
+
+                <div class="stat-item">
+                    <span class="stat-name">🪙 Coins Won</span>
+                    <span class="stat-val positive" id="statWon">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-name">🎰 Coins Bet</span>
+                    <span class="stat-val negative" id="statBet">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-name">❌ Coins Lost</span>
+                    <span class="stat-val negative" id="statLost">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-name">🔄 Coins Refilled</span>
+                    <span class="stat-val gold" id="statRefilled">—</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-name">📈 Net Coins</span>
+                    <span class="stat-val" id="statNet">—</span>
+                </div>
+            </div>
+
+            <div class="right-panel-section">
+                 <!-- Bottom half — filters -->
+                <div class="right-panel-title">Filters</div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="filterDays">Time Period</label>
+                    <select class="filter-select" id="filterDays" onchange="applyFilters()">
+                        <option value="7">Last 7 days</option>
+                        <option value="14">Last 14 days</option>
+                        <option value="30">Last 30 days</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label" for="filterType">Transaction Type</label>
+                    <select class="filter-select" id="filterType" onchange="applyFilters()">
+                        <option value="all">All Transactions</option>
+                        <option value="WIN">Wins Only</option>
+                        <option value="BET">Bets Only</option>
+                        <option value="REFILL">Refills Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="logoutModel" class="logout-modal" style="display:none">
+                <div id="logoutOverlay" class="logout-overlay" onclick="closeLogoutModel()"></div>
+                <div id="logoutBox" class="logout-box">
+                    <div id="logoutIcon">🚪</div>
+                    <div id="logoutTitle">Logout</div>
+                    <div id="logoutMessage">Are you sure that you want to logout?</div>
+                    <div id="logoutButtons">
+                        <button id="logoutCancel" onclick="closeLogoutModel()">Cancel</button>
+                        <button id="logoutConfirm" onclick="confirmLogout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+        <!-- Profile overlay -->
+<div class="profile-overlay" id="profileOverlay"
+     onclick="closeProfilePanel()"></div>
+
+<!-- Profile slide-in panel -->
+<div class="profile-panel" id="profilePanel">
+
+    <!-- Header -->
+    <div class="profile-panel-header">
+        <div class="profile-panel-title">Profile</div>
+        <button class="profile-panel-close"
+                onclick="closeProfilePanel()">✕</button>
+    </div>
+
+    <!-- Avatar and username -->
+    <div class="profile-avatar-section">
+        <div class="profile-avatar-large" id="profileAvatar">?</div>
+        <div class="profile-username" id="profileUsername">Loading...</div>
+        <div class="profile-joined" id="profileJoined"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <div class="stat-value" id="profileCoins">—</div>
+            <div class="stat-label">Coins</div>
+        </div>
+        <div class="profile-stat">
+            <div class="stat-value" id="profileGames">—</div>
+            <div class="stat-label">Games Played</div>
+        </div>
+    </div>
+
+    <!-- Password change -->
+    <div class="profile-section">
+        <div class="profile-section-title">Change Password</div>
+
+        <div class="profile-form-group">
+            <label class="profile-form-label">Current Password</label>
+            <div class="password-wrap">
+                <input type="password" id="currentPassword"
+                       class="profile-form-input"
+                       placeholder="Enter current password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('currentPassword', this)">
+                    👁️
+                </button>
+            </div>
         </div>
 
-        <div class="sidebar-profile">
-            <div class="user-avatar" id="userAvatar">?</div>
-            <div class="user-details">
-                <div class="user-name" id="sidebarUsername">Loading...</div>
-                <div class="user-role">Player</div>
+        <div class="profile-form-group">
+            <label class="profile-form-label">New Password</label>
+            <div class="password-wrap">
+                <input type="password" id="newPassword"
+                       class="profile-form-input"
+                       placeholder="Enter new password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('newPassword', this)">
+                    👁️
+                </button>
             </div>
         </div>
 
-        <div class="sidebar-coins">
-            <div class="coins-label">Coins</div>
-            <div class="coins-amount">
-                🪙 <span id="sidebarCoins">—</span>
-            </div>
-            <div class="coins-refill" id="refillTimer"></div>
-        </div>
-
-
-        <nav class="sidebar-nav">
-            <div class="nav-label">Navigation</div>
-
-            <button class="nav-btn"
-                    onclick="window.location.href='welcome.html'">
-                <span class="nav-icon">🎮</span> Games
-            </button>
-
-            <button class="nav-btn"
-                    onclick="window.location.href='welcome.html?section=settings'">
-                <span class="nav-icon">⚙️</span> Settings
-            </button>
-
-            <button class="nav-btn active">
-                <span class="nav-icon">📊</span> Transaction History
-            </button>
-        </nav>
-
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="handleLogout()">
-                🚪 Logout
-            </button>
-        </div>
-
-    </aside>
-    <!-- ── MAIN CONTENT ──────────────────────────────────── -->
-    <main class="main-content with-right-panel">
-
-        <div class="history-header">Transaction History</div>
-
-        <!-- Transaction list -->
-        <div class="transaction-card" id="transactionCard">
-            <div class="no-transactions" id="loadingMsg">
-                Loading transactions...
-            </div>
-        </div>
-    </main>
-
-    <aside class="right-panel">
-
-        <!-- Top half — overall stats -->
-        <div class="right-panel-section">
-            <div class="right-panel-title">Overall (filtered)</div>
-
-            <div class="stat-item">
-                <span class="stat-name">🪙 Coins Won</span>
-                <span class="stat-val positive" id="statWon">—</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-name">🎰 Coins Bet</span>
-                <span class="stat-val negative" id="statBet">—</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-name">❌ Coins Lost</span>
-                <span class="stat-val negative" id="statLost">—</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-name">🔄 Coins Refilled</span>
-                <span class="stat-val gold" id="statRefilled">—</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-name">📈 Net Coins</span>
-                <span class="stat-val" id="statNet">—</span>
+        <div class="profile-form-group">
+            <label class="profile-form-label">Confirm New Password</label>
+            <div class="password-wrap">
+                <input type="password" id="confirmNewPassword"
+                       class="profile-form-input"
+                       placeholder="Confirm new password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('confirmNewPassword', this)">
+                    👁️
+                </button>
             </div>
         </div>
 
-        <!-- Bottom half — filters -->
-        <div class="right-panel-section">
-            <div class="right-panel-title">Filters</div>
+        <div class="profile-error" id="passwordError"></div>
+        <div class="profile-success" id="passwordSuccess"></div>
 
-            <div class="filter-group">
-                <label class="filter-label">Time Period</label>
-                <select class="filter-select" id="filterDays"
-                        onchange="applyFilters()">
-                    <option value="7">Last 7 days</option>
-                    <option value="14">Last 14 days</option>
-                    <option value="30">Last 30 days</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label class="filter-label">Transaction Type</label>
-                <select class="filter-select" id="filterType"
-                        onchange="applyFilters()">
-                    <option value="all">All Transactions</option>
-                    <option value="WIN">Wins Only</option>
-                    <option value="BET">Bets Only</option>
-                    <option value="REFILL">Refills Only</option>
-                </select>
-            </div>
-        </div>
-    </aside>
+        <button class="btn-change-password"
+                onclick="handleChangePassword()">
+            Update Password
+        </button>
+    </div>
 </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            const API_BASE = 'http://localhost:8080/api';
 
-            if(!localStorage.getItem('token')){
-                window.location.href = 'login.html';
-            }
-            //used to call api's
-            async function apiRequest(endpoint, method = 'GET', body = null) {
-                const token = localStorage.getItem('token');
-                const headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                };
-                const options = { method, headers };
-                if (body) {
-                    options.body = JSON.stringify(body);
-                }
-                const response = await fetch(`${API_BASE}${endpoint}`, options);
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let allTransactions = [];
 
-                if(response.status === 401 || response.status === 403){
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    return null;
-                }
-                return response;
-            }
-            //calls /api/user/transactions and fills in all the information
-            async function loadUserData(){
-                const response = await apiRequest('/user/me');
-                if(!response){
-                    return;
-                }
-                const data = await response.json();
-                document.getElementById('sidebarUsername').textContent = data.username;
-                document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
-                document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+        //used to call api's
+        async function apiRequest(endpoint, method = 'GET', body = null) {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            const options = { method, headers };
+
+            if (body) {
+                options.body = JSON.stringify(body);
             }
 
-            async function loadTransactions(){
-                const response = await apiRequest('/user/transactions');
-                if(!response){
-                    return;
-                }
-                const data = await response.json();
+            const response = await fetch(`${API_BASE}${endpoint}`, options);
 
-                document.getElementById('statWon').textContent = `+${data.totalWon}`;
-                document.getElementById('statBet').textContent = `${data.totalBet}`;
-                document.getElementById('statRefilled').textContent = `${data.totalRefilled}`;
-
-                const net = data.netResult;
-                document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
-
-                const listEl = document.getElementById('transactionList');
-                document.getElementById('loadingMsg').style.display = 'none';
-
-                if (!data.transactions || data.transactions.length === 0) {
-                    listEl.innerHTML = '<p>No transactions in the last 7 days.</p>';
-                    return;
-                }
-
-                data.transactions.forEach(t => {
-                    const item = document.createElement('div');
-                    const icon = t.type === 'WIN' ? '✅' :
-                                 t.type === 'BET' ? '🎰' : '🔄';
-                    const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
-                    const date = new Date(t.createdAt);
-                    const dateStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-
-                    item.innerHTML =
-                        `<span>${icon}</span>
-                        <div>
-                            <div>${t.type}</div>
-                            <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
-                        </div>
-                        <div>${amountText} coins</div>`;
-
-                    listEl.appendChild(item);
-                });
-            }
-            //for the dark mode
-            function applyTheme(){
-                const savedTheme = localStorage.getItem('theme') || 'default';
-                document.body.classList.remove('dark-mode', 'light-mode');
-
-                if(savedTheme === 'dark'){
-                    document.body.classList.add('dark-mode');
-                }
-                else if(savedTheme === 'light'){
-                    document.body.classList.add('light-mode');
-                }
-            }
-            //handles logout
-            function handleLogout(){
+            if (response.status === 401 || response.status === 403) {
                 localStorage.clear();
                 window.location.href = 'login.html';
+                return null;
             }
 
-            if(localStorage.getItem('theme') === 'light'){
+            return response;
+        }
+        //calls /api/user/transactions and fills in all the information
+        async function loadUserData() {
+            const response = await apiRequest('/user/me');
+            if (!response) {
+                return;
+            }
+
+            const data = await response.json();
+            document.getElementById('sidebarUsername').textContent = data.username;
+            document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
+            document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
+        }
+        //load transaction history
+        async function loadTransactions() {
+            const listEl = document.getElementById('transactionList');
+            listEl.innerHTML = '<div class="no-transactions">Loading transactions...</div>';
+
+            const response = await apiRequest('/user/transactions');
+            if (!response) {
+                listEl.innerHTML = '<div class="no-transactions">Failed to load transactions.</div>';
+                return;
+            }
+
+            const data = await response.json();
+            allTransactions = data.transactions;
+
+            document.getElementById('statWon').textContent = `+${data.totalWon}`;
+            document.getElementById('statBet').textContent = `${data.totalBet}`;
+            document.getElementById('statRefilled').textContent = `${data.totalRefilled}`;
+
+            const net = data.netResult;
+            document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
+
+            if (!data.transactions || data.transactions.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎰</div>
+                        <div class="empty-title">No transactions found</div>
+                        <div class="empty-message">Play a game to see your transaction history here.</div>
+                        <button class="empty-btn" onclick="window.location.href='welcome.html'">Go to Games</button>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = '';
+            data.transactions.forEach(t => {
+                const item = document.createElement('div');
+                const icon = t.type === 'WIN' ? '✅' : t.type === 'BET' ? '🎰' : '🔄';
+                const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
+                const date = new Date(t.createdAt);
+                const dateStr = `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+                item.innerHTML = `
+                    <span>${icon}</span>
+                    <div>
+                        <div>${t.type}</div>
+                        <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
+                    </div>
+                    <div>${amountText} coins</div>
+                `;
+
+                listEl.appendChild(item);
+            });
+        }
+         //for the dark mode
+        function applyTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'default';
+            document.body.classList.remove('dark-mode', 'light-mode');
+
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            } else if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
             }
-            loadUserData();
-            loadTransactions();
-            applyTheme();
-        </script>
-    </body>
+        }
+        //handles logout
+        function handleLogout() {
+            document.getElementById('logoutModel').style.display = 'flex';
+        }
+
+        function closeLogoutModel() {
+            document.getElementById('logoutModel').style.display = 'none';
+        }
+
+        function confirmLogout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function openProfilePanel(){
+            document.getElementById('profilePanel').classList.add('open');
+            document.getElementById('profileOverlay').classList.add('open');
+            loadProfileData();
+        }
+
+        //Close the profile
+        function closeProfilePanel(){
+            document.getElementById('profilePanel').classList.remove('open');
+            document.getElementById('profileOverlay').classList.remove('open');
+        }
+
+        //Load profile data to panel
+        async function loadProfileData(){
+            const response = await apiRequest('/user/me');
+            if(!response){
+                return;
+            }
+            const data = await response.json();
+            document.getElementById('profileAvatar').textContent = data.username .charAt(0).toUpperCase();
+            document.getElementById('profileUsername').textContent = data.username;
+            document.getElementById('profileCoins').textContent = data.coins.toLocaleString();
+            if(data.createdAt){
+                const joined =  new Date(data.createdAt);
+                document.getElementById('profileJoined').textContent = 'Joined: ' + joined.toLocaleDateString([], {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            document.getElementById('profileGames').textContent = '-';  
+        }
+
+        async function handleChangePassword(){
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            const errorEl = document.getElementById('passwordError');
+            const successEl = document.getElementById('passwordSuccess');
+
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            if(!current || !newPass || !confirm){
+                errorEl.textContent = 'Please fill out all fields';
+                return;
+            }
+            if(newPass.length < 12){
+                errorEl.textContent = 'New password must be at least 12 characters';
+                return;
+            }
+            if(newPass != confirm){
+                errorEl.textContent = 'New passwords do not match';
+                return;
+            }
+            if(current === newPass){
+                errorEl.textContent = 'New password must be different from current password.';
+                return;
+            }
+            try{
+                const response = await apiRequest('/user/password', 'PATCH', {
+                    currentPassword: current,
+                    newPassword: newPass
+                });
+                if(!response){
+                    return;
+                }
+                if(response.ok){
+                    successEl.textContent = 'Password updated successfully!';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                }
+                else{
+                    const data = await response.json();
+                    errorEl.textContent = data.message || 'Failed to update password';
+                }
+            }
+            catch(err){
+                errorEl.textContent = 'Could not connect to server';
+            }
+        }  
+
+        //password visibility
+        function togglePassword(inputId, btn){
+            const input = document.getElementById(inputId);
+            if(input.type === 'password'){
+                input.type = 'text';
+            }
+            else{
+                input.type = 'password';
+            }
+        }
+
+        //filters out wins and losses
+        function applyFilters() {
+            const typeFilter = document.getElementById('filterType').value;
+            let filtered = allTransactions;
+
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+
+            const totalWon = filtered.filter(t => t.type === 'WIN').reduce((sum, t) => sum + t.amount, 0);
+            const totalBet = filtered.filter(t => t.type === 'BET').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            const totalRefilled = filtered.filter(t => t.type === 'REFILL').reduce((sum, t) => sum + t.amount, 0);
+            const net = totalWon - totalBet;
+
+            document.getElementById('statWon').textContent = `+${totalWon}`;
+            document.getElementById('statBet').textContent = `${totalBet}`;
+            document.getElementById('statRefilled').textContent = `+${totalRefilled}`;
+            document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
+
+            const listEl = document.getElementById('transactionList');
+            listEl.innerHTML = '';
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎰</div>
+                        <div class="empty-title">No transactions found</div>
+                        <div class="empty-message">No transactions match the selected filter.</div>
+                        <button class="empty-btn" onclick="window.location.href='welcome.html'">Go to Games</button>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(t => {
+                const item = document.createElement('div');
+                const icon = t.type === 'WIN' ? '✅' : t.type === 'BET' ? '🎰' : '🔄';
+                const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
+                const date = new Date(t.createdAt);
+                const dateStr = `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+                item.innerHTML = `
+                    <span>${icon}</span>
+                    <div>
+                        <div>${t.type}</div>
+                        <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
+                    </div>
+                    <div>${amountText} coins</div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        applyTheme();
+        loadUserData();
+        loadTransactions();
+    </script>
+</body>
 </html>

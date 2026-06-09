@@ -21,7 +21,7 @@
         </div>
 
         <div class="sidebar-profile">
-            <div class="user-avatar" id="userAvatar">?</div>
+            <div class="user-avatar" id="userAvatar" onclick="openProfilePanel()">?</div>
             <div class="user-details">
                 <div class="user-name" id="sidebarUsername">Loading...</div>
                 <div class="user-role">Player</div>
@@ -75,7 +75,37 @@
 
             <!-- Blackjack -->
             <div class="game-card" id="blackjackCard">
-                <div class="game-card-image">🃏</div>
+                <div class="game-card-image">
+                    <div class="blackjack-table-illustration">
+                        <!--Felt table-->
+                        <div class="felt-table">
+                            <!--Dealer area-->
+                            <div class="dealer-area">
+                                <span class="area-label">DEALER</span>
+                                <div class="area-slots">
+                                    <div class="card-slot"></div>
+                                    <div class="card-slot"></div>
+                                </div>
+                            </div>
+                            <!--Table-->
+                            <div class="table-card"></div>
+                            <!--Bet circle-->
+                            <div class="bet-circle">
+                                <span class="bet-label">BET</span>
+                            </div>
+                            <!--Player-->
+                            <div class="player-area">
+                                <span class="area-label">PLAYER</span>
+                                <div class="card-slots">
+                                    <div class="card-slot card-slot-red"></div>
+                                    <div class="card-slot card-slot-black"></div>
+                                </div>
+                            </div>
+                            <!--21 text-->
+                            <div class="table-title">21</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="game-card-body">
                     <div class="game-card-title">Blackjack</div>
                     <div class="game-card-desc">Beat the dealer to 21</div>
@@ -140,6 +170,109 @@
 
         </div>
     </div>
+    <!--Logout confirmation-->
+    <div id="logoutModel" style="display:none">
+        <div id="logoutOverlay" onclick="closeLogoutModel()"></div>
+        <div id="logoutBox">
+            <div id="logoutIcon">🚪</div>
+            <div id="logoutTitle">Logout</div>
+            <div id="logoutMessage">Are you sure that you want to logout</div>
+            <div id="logoutButtons">
+                <button id="logoutCancel" onclick="closeLogoutModel()">
+                    Cancel
+                </button>
+                <button id="logoutConfirm" onclick="confirmLogout()">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile overlay -->
+<div class="profile-overlay" id="profileOverlay"
+     onclick="closeProfilePanel()"></div>
+
+<!-- Profile slide-in panel -->
+<div class="profile-panel" id="profilePanel">
+
+    <!-- Header -->
+    <div class="profile-panel-header">
+        <div class="profile-panel-title">Profile</div>
+        <button class="profile-panel-close"
+                onclick="closeProfilePanel()">✕</button>
+    </div>
+
+    <!-- Avatar and username -->
+    <div class="profile-avatar-section">
+        <div class="profile-avatar-large" id="profileAvatar">?</div>
+        <div class="profile-username" id="profileUsername">Loading...</div>
+        <div class="profile-joined" id="profileJoined"> </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <div class="stat-value" id="profileCoins">—</div>
+            <div class="stat-label">Coins</div>
+        </div>
+        <div class="profile-stat">
+            <div class="stat-value" id="profileGames">—</div>
+            <div class="stat-label">Games Played</div>
+        </div>
+    </div>
+
+    <!-- Password change -->
+    <div class="profile-section">
+        <div class="profile-section-title">Change Password</div>
+
+        <div class="profile-form-group">
+            <label class="profile-form-label">Current Password</label>
+            <div class="password-wrap">
+                <input type="password" id="currentPassword"
+                       class="profile-form-input"
+                       placeholder="Enter current password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('currentPassword', this)">
+                    👁️
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-form-group">
+            <label class="profile-form-label">New Password</label>
+            <div class="password-wrap">
+                <input type="password" id="newPassword"
+                       class="profile-form-input"
+                       placeholder="Enter new password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('newPassword', this)">
+                    👁️
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-form-group">
+            <label class="profile-form-label">Confirm New Password</label>
+            <div class="password-wrap">
+                <input type="password" id="confirmNewPassword"
+                       class="profile-form-input"
+                       placeholder="Confirm new password">
+                <button class="password-toggle" type="button"
+                        onclick="togglePassword('confirmNewPassword', this)">
+                    👁️
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-error" id="passwordError"></div>
+        <div class="profile-success" id="passwordSuccess"></div>
+
+        <button class="btn-change-password"
+                onclick="handleChangePassword()">
+            Update Password
+        </button>
+    </div>
+</div>
     </main>
  </div>
 
@@ -184,8 +317,8 @@
 
                 document.getElementById('sidebarUsername').textContent = data.username;
                 document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
-                document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
-
+                const coinsEl = document.getElementById('sidebarCoins');
+                animateCoins(coinsEl, data.coins);
                 localStorage.setItem('coins', data.coins);
 
                 if(data.secondsUntilRefill && data.secondsUntilRefill > 0){
@@ -249,13 +382,137 @@
                 if(coins < 10){
                     return;
                 }
-                window.location.href = 'blackjack.html';
+                window.location.href = 'blackjack/blackjack.html';
             }
             //allows the user to logout
             function handleLogout(){
-                localStorage.clear();
-                window.location.href = 'login.html';
+                document.getElementById('logoutModel').style.display ='flex';
             }
+            //close model without logging out
+            function closeLogoutModel(){
+                document.getElementById('logoutModel').style.display ='none';
+            }
+            //user will logout
+            function confirmLogout(){
+                localStorage.clear();
+                window.location.href ='login.html';
+            }
+            //animates coins when you first enter login page
+            function animateCoins(element, target, duration = 1000){
+                const start = 0;
+                const startTime = performance.now();
+
+                function update(currentTime){
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed/ duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const current = Math.floor(easeOut * target);
+                    element.textContent = current.toLocaleString();
+                    if(progress < 1){
+                        requestAnimationFrame(update);
+                    }
+                    else{
+                        element.textContent = target.toLocaleString();
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+
+            //to open the profile and show data
+        function openProfilePanel(){
+            document.getElementById('profilePanel').classList.add('open');
+            document.getElementById('profileOverlay').classList.add('open');
+            loadProfileData();
+        }
+
+        //Close the profile
+        function closeProfilePanel(){
+            document.getElementById('profilePanel').classList.remove('open');
+            document.getElementById('profileOverlay').classList.remove('open');
+        }
+
+        //Load profile data to panel
+        async function loadProfileData(){
+            const response = await apiRequest('/user/me');
+            if(!response){
+                return;
+            }
+            const data = await response.json();
+            document.getElementById('profileAvatar').textContent = data.username .charAt(0).toUpperCase();
+            document.getElementById('profileUsername').textContent = data.username;
+            document.getElementById('profileCoins').textContent = data.coins.toLocaleString();
+            if(data.createdAt){
+                const joined =  new Date(data.createdAt);
+                document.getElementById('profileJoined').textContent = 'Joined: ' + joined.toLocaleDateString([], {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            document.getElementById('profileGames').textContent = '-';  
+        }
+
+        async function handleChangePassword(){
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            const errorEl = document.getElementById('passwordError');
+            const successEl = document.getElementById('passwordSuccess');
+
+            errorEl.textContent = '';
+            successEl.textContent = '';
+
+            if(!current || !newPass || !confirm){
+                errorEl.textContent = 'Please fill out all fields';
+                return;
+            }
+            if(newPass.length < 12){
+                errorEl.textContent = 'New password must be at least 12 characters';
+                return;
+            }
+            if(newPass != confirm){
+                errorEl.textContent = 'New passwords do not match';
+                return;
+            }
+            if(current === newPass){
+                errorEl.textContent = 'New password must be different from current password.';
+                return;
+            }
+            try{
+                const response = await apiRequest('/user/password', 'PATCH', {
+                    currentPassword: current,
+                    newPassword: newPass
+                });
+                if(!response){
+                    return;
+                }
+                if(response.ok){
+                    successEl.textContent = 'Password updated successfully!';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                }
+                else{
+                    const data = await response.json();
+                    errorEl.textContent = data.message || 'Failed to update password';
+                }
+            }
+            catch(err){
+                errorEl.textContent = 'Could not connect to server';
+            }
+        }  
+
+        //password visibility
+        function togglePassword(inputId, btn){
+            const input = document.getElementById(inputId);
+            if(input.type === 'password'){
+                input.type = 'text';
+            }
+            else{
+                input.type = 'password';
+            }
+        }
+
             //save either light or dark mode
             const savedTheme = localStorage.getItem('theme') || 'light';
             if(savedTheme === 'dark'){

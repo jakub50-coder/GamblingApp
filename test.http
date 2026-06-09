@@ -18,7 +18,7 @@ Content-Type: application/json
 
 ### Get current user profile
 GET http://localhost:8080/api/user/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3OTMxMTI4MywiZXhwIjoxNzc5Mzk3NjgzfQ.R6hk97IwFleilbH9jzy0EhwoTLzfM_TDzRTci2l23IM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDYwNDM4NiwiZXhwIjoxNzgwNjkwNzg2fQ.e8dsva47p-YhDzZGfglyuBqomrr-JZKzwVHvRLBvP2U
 
 ### Get transaction history
 GET http://localhost:8080/api/user/transactions
@@ -26,3 +26,30 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3O
 ### Mark tutorial as seen
 PATCH http://localhost:8080/api/user/tutorial/blackjack
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3OTMxMTI4MywiZXhwIjoxNzc5Mzk3NjgzfQ.R6hk97IwFleilbH9jzy0EhwoTLzfM_TDzRTci2l23IM
+
+### Get game state
+GET http://localhost:8080/api/blackjack/state
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+### Start a round with bet of 10
+POST http://localhost:8080/api/blackjack/start
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+Content-Type: application/json
+
+{
+    "betAmount": 10
+}
+
+### Hit
+POST http://localhost:8080/api/blackjack/hit
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+
+### Stand
+POST http://localhost:8080/api/blackjack/stand
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+### New round
+POST http://localhost:8080/api/blackjack/new-round
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+
+### Forfeit
+POST http://localhost:8080/api/blackjack/forfeit
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
