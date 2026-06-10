@@ -13,4 +13,5 @@ public interface CoinTransactionRepository extends JpaRepository<CoinTransaction
     List<CoinTransaction> findByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(
         Long userId, LocalDateTime after
     );
+    List<CoinTransaction> findByRoundId(String roundId);
 }

@@ -45,7 +45,7 @@ public class BlackjackService {
             }
         }
 
-        if (!userService.placeBet(username, betAmount)) {
+        if (!userService.placeBet(username, betAmount, game.getRoundId())) {
             return "Not enough coins to place that bet";
         }
 
@@ -176,6 +176,7 @@ public class BlackjackService {
         int dealerTotal = dealer.getHandTotal();
         int bet = player.getBet();
         boolean dealerBlackjack = dealer.isNaturalBlackjack();
+        String roundId = game.getRoundId();
 
         String result;
         int coinChange;
@@ -183,31 +184,38 @@ public class BlackjackService {
         if (player.isBust()) {
             result = "BUST";
             coinChange = -bet;
-        } else if (player.isHasBlackjack() && dealerBlackjack) {
+        } 
+        else if (player.isHasBlackjack() && dealerBlackjack) {
             result = "PUSH";
             coinChange = 0;
-        } else if (player.isHasBlackjack()) {
+        } 
+        else if (player.isHasBlackjack()) {
             int winnings = bet + (int) Math.floor(bet * 1.5);
             result = "BLACKJACK";
             coinChange = (int) Math.floor(bet * 1.5);
-            userService.awardWinnings(username, winnings, "blackjack");
-        } else if (dealerBlackjack) {
+            userService.awardWinnings(username, winnings, "blackjack",roundId);
+        } 
+        else if (dealerBlackjack) {
             result = "DEALER_BLACKJACK";
             coinChange = -bet;
-        } else if (dealer.isBust()) {
+        } 
+        else if (dealer.isBust()) {
             int winnings = bet * 2;
             result = "WIN";
             coinChange = bet;
-            userService.awardWinnings(username, winnings, "blackjack");
-        } else if (playerTotal > dealerTotal) {
+            userService.awardWinnings(username, winnings, "blackjack", roundId);
+        } 
+        else if (playerTotal > dealerTotal) {
             int winnings = bet * 2;
             result = "WIN";
             coinChange = bet;
-            userService.awardWinnings(username, winnings, "blackjack");
-        } else if (playerTotal < dealerTotal) {
+            userService.awardWinnings(username, winnings, "blackjack", roundId);
+        } 
+        else if (playerTotal < dealerTotal) {
             result = "LOSE";
             coinChange = -bet;
-        } else {
+        } 
+        else {
             result = "PUSH";
             coinChange = 0;
         }

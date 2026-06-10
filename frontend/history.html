@@ -253,6 +253,27 @@
             document.getElementById('sidebarUsername').textContent = data.username;
             document.getElementById('userAvatar').textContent = data.username.charAt(0).toUpperCase();
             document.getElementById('sidebarCoins').textContent = data.coins.toLocaleString();
+            if(data.secondsUntilRefill && data.secondsUntilRefill > 0){
+                startRefillTimer(data.secondsUntilRefill);
+            }
+        }
+        //Used to show the refill timer when coins are less then 100
+        function startRefillTimer(seconds){
+            const timerEl = document.getElementById('refillTimer');
+            timerEl.style.display = 'block';
+            function update(){
+                if(seconds <= 0){
+                    timerEl.textContent = 'Refill ready - refresh!';
+                    return;
+                }
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                timerEl.textContent = `Refill in ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+                seconds--;
+                setTimeout(update,1000);
+            }
+            update();
         }
         //load transaction history
         async function loadTransactions() {
@@ -270,6 +291,7 @@
 
             document.getElementById('statWon').textContent = `+${data.totalWon}`;
             document.getElementById('statBet').textContent = `${data.totalBet}`;
+            document.getElementById('statLost').textContent = `-${data.totalLost}`;
             document.getElementById('statRefilled').textContent = `${data.totalRefilled}`;
 
             const net = data.netResult;
@@ -437,11 +459,13 @@
 
             const totalWon = filtered.filter(t => t.type === 'WIN').reduce((sum, t) => sum + t.amount, 0);
             const totalBet = filtered.filter(t => t.type === 'BET').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            const totalLost = Math.max(0, totalBet - totalWon);
             const totalRefilled = filtered.filter(t => t.type === 'REFILL').reduce((sum, t) => sum + t.amount, 0);
             const net = totalWon - totalBet;
 
             document.getElementById('statWon').textContent = `+${totalWon}`;
             document.getElementById('statBet').textContent = `${totalBet}`;
+            document.getElementById('statLost').textContent = `${totalLost}`;
             document.getElementById('statRefilled').textContent = `+${totalRefilled}`;
             document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
 

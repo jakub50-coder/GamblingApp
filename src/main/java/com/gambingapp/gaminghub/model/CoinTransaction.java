@@ -39,30 +39,67 @@ public class CoinTransaction {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "round_id", length = 36)
+    private String roundId;
+
     public CoinTransaction() {}
 
-    public CoinTransaction(User user, int amount, String type, String game) {
+    public CoinTransaction(User user, int amount, String type, String game, String roundId) {
         this.user = user;
         this.amount = amount;
         this.type = type;
         this.game = game;
+        this.roundId = roundId;
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
+    public CoinTransaction(User user, int amount, String type, String game) {
+        this(user, amount, type, game, null);
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public Long getId() { 
+        return id; 
+    }
 
-    public int getAmount() { return amount; }
-    public void setAmount(int amount) { this.amount = amount; }
+    public User getUser() { 
+        return user; 
+    }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public void setUser(User user) { 
+        this.user = user; 
+    }
 
-    public String getGame() { return game; }
-    public void setGame(String game) { this.game = game; }
+    public int getAmount() { 
+        return amount; 
+    }
+    public void setAmount(int amount) { 
+        this.amount = amount; 
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getType() { 
+        return type; 
+    }
+    public void setType(String type) { 
+        this.type = type; 
+    }
+
+    public String getGame() { 
+        return game; 
+    }
+    public void setGame(String game) { 
+        this.game = game; 
+    }
+
+    public LocalDateTime getCreatedAt() { 
+        return createdAt; 
+    }
+    public void setCreatedAt(LocalDateTime createdAt) { 
+        this.createdAt = createdAt; 
+    }
+    public String getRoundId(){
+        return roundId;
+    }
+    public void setRoundId(String roundId){
+        this.roundId = roundId;
+    }
 }

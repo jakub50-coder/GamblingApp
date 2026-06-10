@@ -2,6 +2,7 @@ package com.gambingapp.gaminghub.model.blackjack;
 
 import com.gambingapp.gaminghub.model.multiple.BotPlayer;
 import com.gambingapp.gaminghub.model.multiple.Deck;
+import java.util.UUID;
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -31,14 +32,17 @@ public class BlackjackGame{
     private boolean playerDisconnected;
     private String roundResult;
     private int coinChange;
+    private String roundId;
 
-    //constructor
+    //Constructor
     public BlackjackGame(String username){
         this.username = username;
         this.deck = new Deck(6);
         this.seats = new ArrayList<>();
         this.phase = GamePhase.WAITING_FOR_BET;
         this.playerDisconnected = false;
+        //UUID is a University Unqiue Identifier for generating unqiue identify information
+        this.roundId = UUID.randomUUID().toString();
         initializeSeats();
     }
     //prepare the seats
@@ -62,6 +66,7 @@ public class BlackjackGame{
         turnStartedAt = null;
         playerDisconnected = false;
         disconnectedAt = null;
+        roundId = UUID.randomUUID().toString();
     }
 
     //return dealer seat
@@ -153,5 +158,8 @@ public class BlackjackGame{
     }
     public void setCoinChange(int coinChange){
         this.coinChange = coinChange;
-    }   
+    } 
+    public String getRoundId(){
+        return roundId;
+    }  
 }

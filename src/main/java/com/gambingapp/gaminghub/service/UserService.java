@@ -22,9 +22,7 @@ public class UserService {
     private final CoinTransactionRepository coinTransactionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository,
-                       CoinTransactionRepository coinTransactionRepository,
-                       PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,CoinTransactionRepository coinTransactionRepository,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.coinTransactionRepository = coinTransactionRepository;
         this.passwordEncoder = passwordEncoder;
@@ -47,8 +45,7 @@ public class UserService {
     // Validates username and password on login
     public Optional<User> login(String username, String password) {
         Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent() &&
-            passwordEncoder.matches(password, userOpt.get().getPassword())) {
+        if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPassword())) {
             return userOpt;
         }
         return Optional.empty();
@@ -86,7 +83,7 @@ public class UserService {
 
     // Deducts coins for a bet — enforces min 10, max 75, and balance floor
     @Transactional
-    public boolean placeBet(String username, int betAmount) {
+    public boolean placeBet(String username, int betAmount, String roundId) {
         if (betAmount < 10 || betAmount > 75) {
             return false;
         }
@@ -101,16 +98,14 @@ public class UserService {
         user.setCoins(user.getCoins() - betAmount);
         userRepository.save(user);
 
-        CoinTransaction bet = new CoinTransaction(
-            user, -betAmount, "BET", "blackjack"
-        );
+        CoinTransaction bet = new CoinTransaction(user, -betAmount, "BET", "blackjack", roundId);
         coinTransactionRepository.save(bet);
         return true;
     }
 
     // Awards winnings to a player after a win
     @Transactional
-    public void awardWinnings(String username, int amount, String game) {
+    public void awardWinnings(String username, int amount, String game, String roundId) {
         Optional<User> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             return;
@@ -119,8 +114,17 @@ public class UserService {
         user.setCoins(user.getCoins() + amount);
         userRepository.save(user);
 
-        CoinTransaction win = new CoinTransaction(user, amount, "WIN", game);
+        CoinTransaction win = new CoinTransaction(user, amount, "WIN", game, roundId);
         coinTransactionRepository.save(win);
+    }
+    //Old Versions of awardWinnings and placeBet for when the newer versions don't work
+    @Transactional
+    public boolean placeBet(String username, int betAmount){
+        return placeBet(username, betAmount, null);
+    }
+    @Transactional
+    public void awardWinnings(String username, int amount, String game){
+        awardWinnings(username, amount, game, null);
     }
 
     // Returns last 7 days of coin transactions for a user
@@ -130,8 +134,7 @@ public class UserService {
             return List.of();
         }
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
-        return coinTransactionRepository
-            .findByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(
+        return coinTransactionRepository.findByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(
                 userOpt.get().getId(), oneWeekAgo
             );
     }

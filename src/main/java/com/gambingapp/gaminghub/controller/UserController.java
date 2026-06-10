@@ -70,22 +70,35 @@ public class UserController {
         List<CoinTransaction> transactions = userService.getTransactionHistory(username);
 
         int totalWon = transactions.stream().filter(t -> t.getType().equals("WIN")).mapToInt(CoinTransaction::getAmount).sum();
-        int totalLost = transactions.stream().filter(t -> t.getType().equals("LOSE")).mapToInt(CoinTransaction::getAmount).sum();
-        int totalBet = transactions.stream()
-            .filter(t -> t.getType().equals("BET"))
-            .mapToInt(CoinTransaction::getAmount)
-            .map(Math::abs)
-            .sum();
+        int totalBet = transactions.stream().filter(t -> t.getType().equals("BET")).mapToInt(t -> Math.abs(t.getAmount())).sum();
         int totalRefilled = transactions.stream().filter(t -> t.getType().equals("REFILL")).mapToInt(CoinTransaction::getAmount).sum();
+
+        Map<String, Integer> betsByRound = new HashMap<>();
+        Map<String, Integer> winsByRound = new HashMap<>();
+
+        transactions.stream().filter(t -> t.getType().equals("BET") && t.getRoundId() != null).forEach(t -> betsByRound.put(t.getRoundId(), Math.abs(t.getAmount())));
+        transactions.stream().filter(t -> t.getType().equals("WIN") && t.getRoundId() != null).forEach(t -> winsByRound.put(t.getRoundId(), t.getAmount()));
+        int totalLost = betsByRound.entrySet().stream().filter(e -> !winsByRound.containsKey(e.getKey())).mapToInt(Map.Entry::getValue).sum();
+        int netResult = totalWon - totalLost;
+        List<Map<String, Object>> transactionList = transactions.stream().map(t ->{
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", t.getId());
+            entry.put("amount", t.getAmount());
+            entry.put("type", t.getType());
+            entry.put("game", t.getGame());
+            entry.put("roundId", t.getRoundId());
+            entry.put("createdAt", t.getCreatedAt().toString());
+            return entry;
+        })
+        .toList();
 
         Map<String, Object> response = new HashMap<>();
         response.put("transactions", transactions);
         response.put("totalWon", totalWon);
-        response.put("totalLost", totalLost);
         response.put("totalBet", totalBet);
+        response.put("totalLost", totalLost);
         response.put("totalRefilled", totalRefilled);
-        response.put("netResult", totalWon - totalBet);
-
+        response.put("netResult", netResult);
         return ResponseEntity.ok(response);
     }
     //Patch /api/user/tutorial/blackjack
