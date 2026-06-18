@@ -26,6 +26,13 @@ public class BlackjackSeat{
     private boolean busted;
     private boolean hasBlackjack;
     private boolean stood;
+    //For split
+    private List<Card> splitHand;
+    private boolean isSplit;
+    private boolean splitHandComplete;
+    private boolean splitHandBusted;
+    private boolean splitHandStood;
+    private int splitBet;
 
     //Constructor for dealer
     public BlackjackSeat(int seatNumber){
@@ -62,11 +69,96 @@ public class BlackjackSeat{
         busted = false;
         hasBlackjack = false;
         stood = false;
+        splitHand = null;
+        isSplit = false;
+        splitHandComplete = false;
+        splitHandBusted = false;
+        splitHandStood = false;
+        splitBet = 0;
     }
 
     //Add a card to each seat
     public void addCard(Card card){
         hand.add(card);
+    }
+
+    //return true if seat can split
+    public boolean canSplit() {
+        if(hand.size() != 2){
+            return false;
+        }
+        return hand.get(0).getBlackjackValue() == hand.get(1).getBlackjackValue();
+    }
+    //split the cards 
+    public void performSplit(){
+        splitHand = new ArrayList<>();
+        splitHand.add(hand.remove(1));
+        isSplit = true;
+        splitBet = bet;
+    }
+    //Add card to split hand
+    public void addCardToSplitHand(Card card){
+        if(splitHand != null){
+            splitHand.add(card);
+        }
+    }
+    //Calculate split hand total
+    public int getSplitHandTotal(){
+        if(splitHand == null){
+            return 0;
+        }
+        int total = 0;
+        int aces = 0;
+        for (Card card: splitHand){
+            if(!card.isFaceDown()){
+                total += card.getBlackjackValue();
+                if(card.getValue() == Card.Value.ACE){
+                    aces++;
+                }
+            }
+        }
+        while(total > 21 && aces > 0){
+            total -= 10;
+            aces--;
+        }
+        return total;
+    }
+    //Return true if split hand is busted
+    public boolean isSplitHandBust(){
+        return getFullSplitHandTotal() > 21;
+    }
+    public int getFullHandTotal() {
+        int total = 0;
+        int aces = 0;
+        for (Card card : hand) {
+            total += card.getBlackjackValue();
+            if (card.getValue() == Card.Value.ACE) {
+                aces++;
+            }
+        }
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+        return total;
+    }
+    public int getFullSplitHandTotal() {
+        if (splitHand == null) {
+            return 0;
+        }
+        int total = 0;
+        int aces = 0;
+        for (Card card : splitHand) {
+            total += card.getBlackjackValue();
+            if (card.getValue() == Card.Value.ACE) {
+                aces++;
+            }
+        }
+        while (total > 21 && aces > 0) {
+            total -= 10;
+            aces--;
+        }
+        return total;
     }
 
     //Calculates the best possible hand
@@ -151,4 +243,32 @@ public class BlackjackSeat{
     public void setStood(boolean stood){
         this.stood = stood;
     }
+    public List<Card> getSplitHand(){
+        return splitHand;
+    }
+    public boolean isSplit(){
+        return isSplit;
+    }
+    public int getSplitBet(){
+        return splitBet;
+    }
+    public boolean isSplitHandComplete(){
+        return splitHandComplete;
+    }
+    public void setSplitHandComplete(boolean b){
+        splitHandComplete = b;
+    }
+    public boolean isSplitHandBusted(){
+        return splitHandBusted;
+    }
+    public void setSplitHandBusted(boolean b){
+        splitHandBusted = b;
+    }
+    public boolean isSplitHandStood(){
+        return splitHandStood;
+    }
+    public void setSplitHandStood(boolean b){
+        splitHandStood = b;
+    }
+
 }

@@ -22,7 +22,8 @@ public class BlackjackController {
     public BlackjackController(BlackjackService blackjackService) {
         this.blackjackService = blackjackService;
     }
-
+    //GET /api/blackjack/state
+    //Gets the state of the game (whether there is a game or not)
     @GetMapping("/state")
     public ResponseEntity<?> getState(Authentication authentication) {
         String username = authentication.getName();
@@ -37,7 +38,8 @@ public class BlackjackController {
         int playerCoins = blackjackService.getPlayerCoins(username);
         return ResponseEntity.ok(BlackjackResponse.from(game, playerCoins));
     }
-
+    //POST /api/blakcjack/start
+    //When the player wants to start a game
     @PostMapping("/start")
     public ResponseEntity<?> startRound(@RequestBody BetRequest request, Authentication authentication) {
         String username = authentication.getName();
@@ -62,7 +64,8 @@ public class BlackjackController {
         int playerCoins = blackjackService.getPlayerCoins(username);
         return ResponseEntity.ok(BlackjackResponse.from(game, playerCoins));
     }
-
+    //POST /api/blackjack/hit
+    //When the player wants to hit in blackjack
     @PostMapping("/hit")
     public ResponseEntity<?> hit(Authentication authentication) {
         String username = authentication.getName();
@@ -82,7 +85,8 @@ public class BlackjackController {
         int playerCoins = blackjackService.getPlayerCoins(username);
         return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
     }
-
+    //POST /api/blackjack/stand
+    //When the player wants to stand or are happy with their card values
     @PostMapping("/stand")
     public ResponseEntity<?> stand(Authentication authentication) {
         String username = authentication.getName();
@@ -102,7 +106,8 @@ public class BlackjackController {
         int playerCoins = blackjackService.getPlayerCoins(username);
         return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
     }
-
+    //POST /api/blackjack/new-round
+    //When the player wants to play a new round
     @PostMapping("/new-round")
     public ResponseEntity<?> newRound(Authentication authentication) {
         String username = authentication.getName();
@@ -122,7 +127,26 @@ public class BlackjackController {
         response.put("coins", playerCoins);
         return ResponseEntity.ok(response);
     }
-
+    //POST /api/blackjack/surrender
+    //When the player wants to surrender and gain hald of their bet
+    @PostMapping("/surrender")
+    public ResponseEntity<?> surrender(Authentication authentication){
+        String username = authentication.getName();
+        Map<String,Object> errorResponse = new HashMap<>();
+        String error = blackjackService.surrender(username);
+        if(error != null){
+            errorResponse.put("message", error);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        Optional<BlackjackGame> gameOpt = blackjackService.getGame(username);
+        if(gameOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        int playerCoins = blackjackService.getPlayerCoins(username);
+        return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
+    }
+    //POST /api/blackjack/forferit
+    //When the player wants to forfeit and leave the game
     @PostMapping("/forfeit")
     public ResponseEntity<?> forfeit(Authentication authentication) {
         String username = authentication.getName();
@@ -138,5 +162,78 @@ public class BlackjackController {
 
         int playerCoins = blackjackService.getPlayerCoins(username);
         return ResponseEntity.ok(BlackjackResponse.from(game, playerCoins));
+    }
+
+    //POST /api/blackjack/double-down
+    //Players double their bet and recieve exactly one more card then automatically stands. Only first action
+    @PostMapping("/double-down")
+    public ResponseEntity<?> doubleDown(Authentication authentication){
+        String username = authentication.getName();
+        Map<String, Object> errorResponse = new HashMap<>();
+        String error = blackjackService.doubleDown(username);
+        if(error != null){
+            errorResponse.put("message", error);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        Optional<BlackjackGame> gameOpt = blackjackService.getGame(username);
+        if(gameOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        int playerCoins = blackjackService.getPlayerCoins(username);
+        return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
+    }
+    //POST /api/blackjack/split
+    //Split the player's two equal cards into two hands
+    @PostMapping("/split")
+    public ResponseEntity<?> split(Authentication authentication){
+        String username = authentication.getName();
+        Map<String, Object> errorResponse = new HashMap<>();
+        String error = blackjackService.split(username);
+        if(error != null){
+            errorResponse.put("message", error);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        Optional<BlackjackGame> gameOpt = blackjackService.getGame(username);
+        if(gameOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        int playerCoins = blackjackService.getPlayerCoins(username);
+        return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
+    }
+    //POST /api/blackjack/hit-split
+    //Hit on active split hand
+    @PostMapping("/hit-split")
+    public ResponseEntity<?> hitSplit(Authentication authentication){
+        String username = authentication.getName();
+        Map<String, Object> errorResponse = new HashMap<>();
+        String error = blackjackService.hitSplit(username);
+        if(error != null){
+            errorResponse.put("message", error);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        Optional<BlackjackGame> gameOpt = blackjackService.getGame(username);
+        if(gameOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        int playerCoins = blackjackService.getPlayerCoins(username);
+        return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(), playerCoins));
+    }
+    //POST /api/blackjack/stand-split
+    //Stand on active split hand
+    @PostMapping("/stand-split")
+    public ResponseEntity<?> standSplit(Authentication authentication){
+        String username = authentication.getName();
+        Map<String, Object> errorResponse = new HashMap<>();
+        String error = blackjackService.standSplit(username);
+        if(error != null){
+            errorResponse.put("message", error);
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        Optional<BlackjackGame> gameOpt = blackjackService.getGame(username);
+        if(gameOpt.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        int playerCoins = blackjackService.getPlayerCoins(username);
+        return ResponseEntity.ok(BlackjackResponse.from(gameOpt.get(),playerCoins));
     }
 }

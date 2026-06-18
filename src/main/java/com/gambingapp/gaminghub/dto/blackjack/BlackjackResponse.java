@@ -43,7 +43,33 @@ public class BlackjackResponse{
             seatMap.put("hasBlackjack", seat.isHasBlackjack());
             seatMap.put("stood", seat.isStood());
             seatMap.put("turnComplete", seat.isTurnComplete());
-
+            seatMap.put("isSplit", seat.isSplit());
+            if(seat.isSplit() && seat.getSplitHand() != null){
+                seatMap.put("splitHandTotal", seat.getSplitHandTotal());
+                seatMap.put("splitHandBusted", seat.isSplitHandBusted());
+                seatMap.put("splitBet", seat.getSplitBet());
+                seatMap.put("splitHandStood", seat.isSplitHandStood());
+                seatMap.put("splitHandComplete", seat.isSplitHandComplete());
+                List<Map<String,Object>> splitCards = new ArrayList<>();
+                for(Card card: seat.getSplitHand()){
+                    Map<String, Object> cardMap = new HashMap<>();
+                    if(card.isFaceDown()){
+                        cardMap.put("faceDown", true);
+                        cardMap.put("displayValue", "?");
+                        cardMap.put("suit", "?");
+                        cardMap.put("isRed", false);
+                    }
+                    else{
+                        cardMap.put("faceDown", false);
+                        cardMap.put("displayValue", card.getDisplayValue());
+                        cardMap.put("suit", card.getSuitSymbol());
+                        cardMap.put("isRed",card.isRed());
+                    }
+                    splitCards.add(cardMap);
+                }
+                seatMap.put("splitCards", splitCards);
+            }
+            seatMap.put("activeHand", game != null && game.isPlayingSplitHand() ? "split": "main");
             if(seat.getSeatType() == BlackjackSeat.SeatType.BOT && seat.getBotPlayer() != null){
                 seatMap.put("botPersonality", seat.getBotPlayer().getPersonality().toString());
                 seatMap.put("botCoins", seat.getBotPlayer().getDisplayCoins());

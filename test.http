@@ -53,3 +53,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4M
 ### Forfeit
 POST http://localhost:8080/api/blackjack/forfeit
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+
+### Test surrender
+POST http://localhost:8080/api/blackjack/surrender
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test double down
+POST http://localhost:8080/api/blackjack/double-down
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test split
+POST http://localhost:8080/api/blackjack/split
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test hit split
+POST http://localhost:8080/api/blackjack/hit-split
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Test stand split
+POST http://localhost:8080/api/blackjack/stand-split
+Authorization: Bearer YOUR_TOKEN_HERE

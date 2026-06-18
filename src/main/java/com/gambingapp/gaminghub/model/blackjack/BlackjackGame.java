@@ -33,6 +33,7 @@ public class BlackjackGame{
     private String roundResult;
     private int coinChange;
     private String roundId;
+    private boolean playingSplitHand;
 
     //Constructor
     public BlackjackGame(String username){
@@ -41,6 +42,7 @@ public class BlackjackGame{
         this.seats = new ArrayList<>();
         this.phase = GamePhase.WAITING_FOR_BET;
         this.playerDisconnected = false;
+        this.playingSplitHand = false;
         //UUID is a University Unqiue Identifier for generating unqiue identify information
         this.roundId = UUID.randomUUID().toString();
         initializeSeats();
@@ -66,6 +68,7 @@ public class BlackjackGame{
         turnStartedAt = null;
         playerDisconnected = false;
         disconnectedAt = null;
+        playingSplitHand = false;
         roundId = UUID.randomUUID().toString();
     }
 
@@ -162,4 +165,10 @@ public class BlackjackGame{
     public String getRoundId(){
         return roundId;
     }  
+    public boolean isPlayingSplitHand(){
+        return playingSplitHand;
+    }
+    public void setPlayingSplitHand(boolean b){
+        this.playingSplitHand = b;
+    }
 }
