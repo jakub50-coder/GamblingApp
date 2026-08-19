@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-//This class is where all the logic for the game blakcjack is
+//This class is where all the logic for the game blackjack is
 @Service
 public class BlackjackService {
     private final UserService userService;
@@ -34,8 +34,8 @@ public class BlackjackService {
         if (betAmount > 75) {
             return "Maximum bet is 75 coins";
         }
-
         BlackjackGame game = getOrCreateGame(username);
+        boolean betPlaced = userService.placeBet(username, betAmount, game.getRoundId(), "blackjack");
         // Reset if game is in ROUND_OVER or any other invalid state for betting
         if (game.getPhase() != BlackjackGame.GamePhase.WAITING_FOR_BET) {
             if (game.getPhase() == BlackjackGame.GamePhase.ROUND_OVER) {
@@ -45,7 +45,7 @@ public class BlackjackService {
             }
         }
 
-        if (!userService.placeBet(username, betAmount, game.getRoundId())) {
+        if (!userService.placeBet(username, betAmount, game.getRoundId(),"blackjack")) {
             return "Not enough coins to place that bet";
         }
 
@@ -114,36 +114,44 @@ public class BlackjackService {
         }
 
         BlackjackGame game = gameOpt.get();
-        if (!game.isPlayingSplitHand()) {
-            return "There is no active split hand.";
+        if(game.getPhase() != BlackjackGame.GamePhase.PLAYER_TURN){
+            return "it is not your turn.";
         }
-        if (game.getPhase() != BlackjackGame.GamePhase.PLAYER_TURN) {
-            return "It is not your turn";
-        }
-        if (game.isTurnTimerExpired()) {
+        if(game.isTurnTimerExpired()){
             forfeitRound(game, username);
             return null;
         }
-
         BlackjackSeat player = game.getPlayerSeat();
-        if (player.getSplitHand() == null) {
-            return "No split hand available.";
+        if(!player.isSplit()){
+            return "no split in progress.";
         }
+        if(game.isPlayingSplitHand()){
+            if(player.getSplitHand() == null){
+                return "No split hand available.";
+            }
+            Card card = game.getDeck().draw();
+            if(card == null){
+                return "No more cards available.";
+            }
+            card.setFaceDown(false);
+            player.addCardToSplitHand(card);
 
-        Card card = game.getDeck().draw();
-        if (card == null) {
-            return "No more cards available.";
+            if(player.getFullSplitHandTotal() > 21){
+                player.setSplitHandBusted(true);
+                player.setSplitHandComplete(true);
+                runBotTurns(game);
+                runDealerTurn(game);
+                resolveSplitRound(game,username);
+            }
         }
-
-        card.setFaceDown(false);
-        player.addCardToSplitHand(card);
-
-        if (player.getFullSplitHandTotal() > 21) {
-            player.setSplitHandBusted(true);
-            player.setSplitHandComplete(true);
-            runBotTurns(game);
-            runDealerTurn(game);
-            resolveSplitRound(game, username);
+        else{
+            dealCard(player, game, false);
+            if(player.isBust()){
+                player.setBusted(true);
+                player.setTurnComplete(true);
+                game.setPlayingSplitHand(true);
+                game.startTurnTimer();
+            }
         }
         return null;
     }

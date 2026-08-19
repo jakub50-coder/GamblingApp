@@ -919,6 +919,21 @@ body{
     margin-top: 2px;
 }
 
+.settings-select{
+    padding: 8p 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color:var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    outline:none;
+    transition: var(--transition);
+}
+
+.settings-select:focus{
+    border-color:var(--accent-gold);
+}
 /*Toggle switch*/
 
 .toggle-wrap{
@@ -1194,11 +1209,11 @@ body.dark-mode .transaction-item{
     border-bottom-color: #2a2a3a;
 }
 
-body.dark-mode .transaction-type:hover{
+body.dark-mode .transaction-item:hover{
     background: #22222f;
 }
 
-body.dark-mode .transaction-type{
+body.dark-mode .tx-outcome{
     color: #f0f0f0;
 }
 
@@ -1397,29 +1412,53 @@ body.dark-mode .login-footer{
     background: #fafafa;
 }
 
-.transaction-icon{
-    width: 30px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
+.tx-icon{
+    font-size: 22px;
+    width: 36px;
+    text-align: center;
     flex-shrink: 0;
 }
 
-.transaction-icon.win{
-    background: rgba(76,175,130,0.12);
-}
-.transaction-icon.bet{
-    background: rgba(224,92,92,0.12);
-}
-.transaction-icon.refill{
-    background: rgba(79, 142, 247, .12);
+.tx-outcome{
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 2px;
 }
 
-.transaction-info{
+.tx-detail{
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.tx-amount{
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    flex-shrink:0;
+}
+ .tx-win{
+    color:var(--success);
+ }
+
+ .tx-loss{
+    color:var(--danger);
+ }
+
+ .tx-push{
+    color:var(--accent-gold);
+ }
+
+ .tx-refill{
+    color:#4f8ef7;
+ }
+
+.tx-info{
     flex: 1;
+    min-width: 0;
 }
 
 .transaction-type{
@@ -1432,11 +1471,6 @@ body.dark-mode .login-footer{
     font-size: 12px;
     color: #888;
     margin-top: 2px;
-}
-
-.transaction-amount{
-    font-size: 15px;
-    font-weight: 700;
 }
 
 .transaction-amount.positive{
@@ -1665,4 +1699,201 @@ body.dark-mode .login-footer{
 .empty-btn:hover{
     background: var(--accent-gold-hover);
     transform: translateY(-1px);
+}
+
+/*Slots card illustration*/
+.slots-card-illustration{
+    width:100%;
+    height:130px;
+    background:#1a0a2e;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+.slots-card-machine{
+    background:#2a1a4e;
+    border:3px solid #c8a84b;
+    border-radius:  10px;
+    padding: 8px;
+    width:90%;
+    height:110px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    box-shadow: 0 0 15px rgba(200, 168, 75, 0.3);
+}
+.slots-card-title{
+    font-size: 10px;
+    font-weight: 900;
+    color: #c8a84b;
+    letter-spacing: 3px;
+}
+.slots-card-reels{
+    display: flex;
+    gap: 3px;
+    flex:1;
+    width: 100%;
+}
+.slots-card-reel{
+    flex:1;
+    background:white;
+    border-radius: 4px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-around;
+    padding: 2px 0;
+    font-size: 16px;
+    line-height: 1.2
+}
+.game-card:hover  .slots-card-machine{
+    box-shadow: 0 0 25px rgba(240, 180, 41, 0.4);
+    border-color: var(--accent-gold);
+}
+/*Roulette Card Illustration*/
+.roulette-card-illustration{
+    width: 100%;
+    height: 130px;
+    background: #0a1f0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.roulette-wheel-preview{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.wheel-outer{
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #c0392b 0deg 30deg,
+        #1a1a1a 30deg 60deg,
+        #c0392b 60deg 90deg,
+        #1a1a1a 90deg 120deg,
+        #1a7a3f 120deg 150deg,
+        #c0392b 150deg 180deg,
+        #1a1a1a 180deg 210deg,
+        #c0392b 210deg 240deg,
+        #1a1a1a 240deg 270deg,
+        #c0392b 270deg 300deg,
+        #1a1a1a 300deg 330deg,
+        #c0392b 330deg 360deg
+    );
+    border: 3px solid #c8a84b;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    animation: wheelSpin 8s linear infinite;
+    box-shadow: 0 0 12px rgba(200, 168, 75, 0.3);
+}
+@keyframes wheelSpin{
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
+.wheel-inner{
+    width: 28px;
+    height: 28px;
+    background: #1a0a2e;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 2px solid #c8a84b;
+    animation: wheelSpin 8s linear infinite reverse;
+}
+.wheel-numbers-preview{
+    display: flex;
+    gap: 4px;
+}
+.wheel-numbers-preview span{
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+.wn-red{
+    background: #c0392b;
+}
+.wn-black{
+    background: #1a1a1a;
+}
+.wn-green{
+    background: #1a7a3f;
+}
+.game-card:hover .wheel-outer{
+    animation-duration: 2s;
+    box-shadow: 0 0 20px rgba(240,180,41,0.4);
+}
+/*Baccarat Card Illustration*/
+.baccarat-card-illustration{
+    width: 100%;
+    height: 130px;
+    background: #0f3d1f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    overflow: hidden;
+}
+.bac-preview{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.bac-preview-hand{
+    display:flex;
+    gap: -4px;
+}
+.bac-preview-card{
+    width: 28px;
+    height: 40px;
+    background: white;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+    margin-left: -4px;
+}
+.bac-preview-card:first-child{
+    margin-left:0;
+}
+.bac-preview-card.red{
+    color: #c0392b;
+}
+.bac-preview-card.black{
+    color: #1a1a2e;
+}
+.bac-preview-vs{
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(200,168,75,0.6);
+}
+.bac-preview-label{
+    font-size: 10px;
+    color: rgba(200,168,75,0.7);
+    letter-spacing: 1px;
+}
+.game-card:hover .bac-preview-card{
+    box-shadow: 1px 2px 8px rgba(240,180,41,0.3);
 }

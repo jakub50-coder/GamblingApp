@@ -30,16 +30,27 @@ public class UserService {
 
     // Creates a new user account with 100 starting coins
     @Transactional
-    public boolean signup(String username, String password) {
+    public boolean signup(String username, String password, String email) {
         if (userRepository.existsByUsername(username)) {
             return false;
         }
+        if(email != null && !email.isBlank() && userRepository.existsByEmail(email)){
+            return false;
+        }
         User user = new User(username, passwordEncoder.encode(password));
+        if (email != null && !email.isBlank()) {
+            user.setEmail(email);
+        }
         userRepository.save(user);
 
         CoinTransaction startingCoins = new CoinTransaction(user, 100, "REFILL", null);
         coinTransactionRepository.save(startingCoins);
         return true;
+    }
+
+    @Transactional
+    public boolean signup(String username, String password){
+        return signup(username, password, null);
     }
 
     // Validates username and password on login
@@ -81,10 +92,16 @@ public class UserService {
         }
     }
 
-    // Deducts coins for a bet — enforces min 10, max 75, and balance floor
+    //also deducts coins for a bet, just if the app can't find a game
     @Transactional
-    public boolean placeBet(String username, int betAmount, String roundId) {
-        if (betAmount < 10 || betAmount > 75) {
+    public boolean placeBet(String username, int betAmount, String roundId){
+        return placeBet(username, betAmount, roundId, "unknown");
+    }
+
+    // Deducts coins for a bet — and shows in transaction history the game and bet amount
+    @Transactional
+    public boolean placeBet(String username, int betAmount, String roundId, String game) {
+        if(betAmount <= 0){
             return false;
         }
         Optional<User> userOpt = userRepository.findByUsername(username);
@@ -98,7 +115,7 @@ public class UserService {
         user.setCoins(user.getCoins() - betAmount);
         userRepository.save(user);
 
-        CoinTransaction bet = new CoinTransaction(user, -betAmount, "BET", "blackjack", roundId);
+        CoinTransaction bet = new CoinTransaction(user, -betAmount, "BET", game, roundId);
         coinTransactionRepository.save(bet);
         return true;
     }
@@ -125,6 +142,15 @@ public class UserService {
     @Transactional
     public void awardWinnings(String username, int amount, String game){
         awardWinnings(username, amount, game, null);
+    }
+
+    // Returns all coin transactions for a user without a limit
+    public List<CoinTransaction> getAllTransactionHistory(String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return List.of();
+        }
+        return coinTransactionRepository.findByUserIdOrderByCreatedAtDesc(userOpt.get().getId());
     }
 
     // Returns last 7 days of coin transactions for a user
@@ -164,5 +190,18 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return true;
+    }
+    //Find the user by email for password reset
+    public Optional<User> getUserByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
+    //Reset the user's password without checking the old one
+    @Transactional
+    public void resetPassword(String username, String newPassword){
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        userOpt.ifPresent(user -> {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        });
     }
 }

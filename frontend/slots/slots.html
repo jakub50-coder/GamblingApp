@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gaming Hub — Slots</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/slots.css">
+    </head>
+    <body>
+        <!--Top Bar-->
+        <div class="slots-topbar">
+            <button class="slots-back-btn" onclick="window.location.href='../welcome.html'">← Back</button>
+            <div class="slots-topbar-title">Slot Machine</div>
+            <div class="slots-topbar-coins">🪙 <span id="topbarCoins">-</span></div>
+        </div>
+        <!--Payout Bar-->
+        <div class="payout-bar" id="payoutBar">
+            <div class="payout-bar-title">Payouts</div>
+            <div class="payout-bar-items" id="payoutItems"></div>
+        </div>
+        <!--Main Slot Machine-->
+        <div class="slots-main">
+            <div class="slot-machine">
+                <!--Machine top decoration-->
+                <div class="machine-top">
+                    <div class="machine-title">Lucky Slots</div>
+                    <div class="machine-lights">
+                        <div class="light"></div>
+                        <div class="light"></div>
+                        <div class="light"></div>
+                        <div class="light"></div>
+                        <div class="light"></div>
+                    </div>
+                </div>
+                <!--Reels display-->
+                <div class="reels-container">
+                    <!--Payline indicators-->
+                    <div class="payline-indicators">
+                        <div class="payline-dot" id="line0"></div>
+                        <div class="payline-dot" id="line1"></div>
+                        <div class="payline-dot" id="line2"></div>
+                    </div>
+
+                    <!--Three reels-->
+                    <div class="reels">
+                        <div class="reel" id="reel0">
+                            <div class="reel-symbols" id="reelSymbols0">
+                                <div class="symbol">🍒</div>
+                                <div class="symbol">🍋</div>
+                                <div class="symbol">🍇</div>
+                            </div>
+                        </div>
+                        <div class="reel-divider"></div>
+                        <div class="reel" id="reel1">
+                            <div class="reel-symbols" id="reelSymbols1">
+                                <div class="symbol">⭐</div>
+                                <div class="symbol">🔔</div>
+                                <div class="symbol">💎</div>
+                            </div>
+                        </div>
+                        <div class="reel-divider"></div>
+                        <div class="reel" id="reel2">
+                            <div class="reel-symbols" id="reelSymbols2">
+                                <div class="symbol">7️⃣</div>
+                                <div class="symbol">🍒</div>
+                                <div class="symbol">🍋</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Payline line overlay-->
+                    <div class="paylines-overlay">
+                        <div class="payline-line" id="payline0"></div>
+                        <div class="payline-line" id="payline1"></div>
+                        <div class="payline-line" id="payline2"></div>
+                    </div>
+                </div>
+                <!--Result message-->
+                <div class="result-display" id="resultDisplay">Place your bet and spin!</div>
+                <!--Bottom decoration-->
+                <div class="machine-bottom">
+                    <div class="coin-slot">🪙</div>
+                </div>
+            </div>
+        </div>
+        <!--Controls-->
+        <div class="slots-controls">
+            <!--Bet controls-->
+            <div class="bet-section">
+                <div class="bet-label">Bet Amount</div>
+                <div class="bet-adjuster">
+                    <button class="bet-btn" onclick="adjustBet(-5)">-</button>
+                    <div class="bet-amount">🪙<span id="betDisplay">10</span></div>
+                    <button class="bet-btn" onclick="adjustBet(5)">+</button>
+                </div>
+                <div class="bet-limits">Min: 5 · Max:50</div>
+            </div>
+            <!--Spin button-->
+            <button class="spin-btn" id="spinBtn" onclick="spin()">Spin</button>
+            <div class="coin-change-display" id="coinChangeDisplay"></div>
+        </div>
+        <!--How to Play Model (for first time users)-->
+         <div id="htpModel" style="display:none">
+            <div class="htp-overlay"></div>
+            <div class="htp-box">
+                <button class="htp-close" onclick="closeHtp()">✕</button>
+                <div class="htp-step" id="htpStep1">
+                    <div class="htp-title">Welcome to Slots!</div>
+                    <div class="htp-body">
+                        Slot machines are the simplest casino game. Choose your bet, hit SPIN and watch the reels!
+                        Match the symbols across any of the 3 paylines to win!
+                    </div>
+                    <div class="htp-nav">
+                        <button class="htp-btn htp-btn-gold" onclick="htpNext(2)">Next →</button>
+                    </div>
+                </div>
+                <div class="htp-step" id="htpStep2" style="display:none">
+                    <div class="htp-title">Paylines</div>
+                    <div class="htp-body">
+                        There are 3 paylines - top, middle, and bottom rows. Each line is checked seperately.
+                        You can win on multiple lines in one spin! Your bet covers all 3 lines automatically.
+                    </div>
+                    <div class="htp-nav">
+                        <button class="htp-btn htp-btn-secondary" onclick="htpNext(1)">← Back</button>
+                        <button class="htp-btn htp-btn-gold" onclick="htpNext(3)">Next →</button>
+                    </div>
+                </div>
+                <div class="htp-step" id="htpStep3" style="display:none">
+                    <div class="htp-title">Payouts</div>
+                    <div class="htp-body">
+                        Match 3 of the same symbols to win big.Three 7️⃣s pays 50x your bet — the jackpot!
+                        Even a single 🍒 cherry on the left pays 1x. The payout table is always shown at the top.
+                    </div>
+                    <div class="htp-nav">
+                        <button class="htp-btn  htp-htp-secondary" onclick="htpNext(2)">← Back</button>
+                        <button class="htp-btn htp-btn-gold" onclick="closeHtp()">Let's Play!</button>
+                    </div>
+                </div>
+            </div>
+         </div>
+         <!--Info Button-->
+         <button class="info-btn" onclick="showHtp()">?</button>
+
+         <script>
+            const API_BASE = 'http://localhost:8080/api';
+            let currentBet = 10;
+            let isSpinning = false;
+            let hasSeenTutorial = false;
+
+            //Int
+            window.onload = async () => {
+                if(!localStorage.getItem('token')){
+                    window.location.href = '../login.html';
+                    return;
+                }
+                applyTheme();
+                await loadCoins();
+                await loadPayouts();
+                checkTutorial();
+            };
+            //Theme
+            function applyTheme(){
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.body.classList.remove(
+                    'dark-mode', 'light-mode'
+                );
+                if(savedTheme === 'dark'){
+                    document.body.classList.add('dark-mode');
+                }
+            }
+            //API Request
+            async function apiRequest(endpoint, method = 'GET', body = null){
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+                const options  = {
+                    method, headers
+                };
+                if(body){
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(`${API_BASE}${endpoint}`,  options);
+                if(response.status === 401 || response.status === 403){
+                    localStorage.clear();
+                    window.location.href = '../login.html';
+                    return null;
+                }
+                return response;
+            }
+            //Load Coins
+            async function loadCoins(){
+                const response = await apiRequest('/user/me');
+                if(!response){
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('topbarCoins').textContent = data.coins.toLocaleString();
+                localStorage.setItem('coins', data.coins);
+            }
+            //Load Payouts
+            async function loadPayouts(){
+                const response = await apiRequest('/slots/payouts');
+                if(!response){
+                    return;
+                }
+                const data = await response.json();
+                const container = document.getElementById('payoutItems');
+                container.innerHTML = '';
+                data.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = 'payout-item';
+                    el.innerHTML = `
+                        <span class="payout-symbols">
+                            ${item.symbols}
+                        </span>
+                        <span class="payout-multiplier">
+                            ${item.multiplier}x
+                        </span>`;
+                        container.appendChild(el);
+                });
+            }
+            //Check Tutorial
+            function checkTutorial(){
+                const seen = localStorage.getItem('hasSeenSlotsTutorial');
+                if(!seen){
+                    showHtp();
+                }
+            }
+            //Tutorial
+            function showHtp(){
+                document.getElementById('htpModel').style.display = 'flex';
+                htpNext(1)
+            }
+            function closeHtp(){
+                document.getElementById('htpModel').style.display = 'none';
+                localStorage.setItem('hasSeenSlotsTutorial', 'true');
+            }
+            function htpNext(step){
+                for(let i = 1; i <= 3; i++){
+                    const el = document.getElementById(`htpStep${i}`);
+                    if(el){
+                        el.style.display = i === step ? 'block' : 'none';
+                    }
+                }
+            }
+            //Bet Adjuster
+            function adjustBet(amount){
+                const newBet = currentBet + amount;
+                const coins = parseInt(localStorage.getItem('coins') || '0');
+                if(newBet < 5){
+                    currentBet = 5;
+                }
+                else if(newBet > 50){
+                    currentBet = 50;
+                }
+                else if(newBet > coins){
+                    currentBet = Math.floor(coins/5) * 5;
+                    if(currentBet < 5){
+                        currentBet = 5;
+                    }
+                }
+                else{
+                    currentBet = newBet;
+                }
+                document.getElementById('betDisplay').textContent = currentBet;
+            }
+            //Spin
+            async function spin(){
+                if(isSpinning){
+                    return;
+                }
+                const coins = parseInt(localStorage.getItem('coins') || '0');
+                if(coins < currentBet){
+                    showResult('❌ Not Enough coins!', false);
+                    return;
+                }
+                isSpinning = true;
+                const spinBtn = document.getElementById('spinBtn');
+                spinBtn.disabled = true;
+                spinBtn.textContent = 'Spinning...';
+                
+                clearWinningLines();
+                document.getElementById('coinChangeDisplay').textContent = '';
+                showResult('Spinning....',false);
+                startReelAnimations();
+
+                const response = await apiRequest('/slots/spin', 'POST', {betAmount:currentBet});
+                if(!response || !response.ok){
+                    stopReelAnimation();
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.textContent = 'SPIN';
+                    showResult('❌ Could not spin.', false);
+                    return;
+                }
+                const data = await response.json();
+                setTimeout(() => {
+                    stopReelAnimations();
+                    displayResult(data);
+                    document.getElementById('topbarCoins').textContent = (coins + data.coinChange).toLocaleString();
+                    localStorage.setItem('coins', coins + data.coinChange);
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.textContent = 'SPIN';
+                }, 2000);
+            }
+            //Reel Animations
+            const ALL_SYMBOLS = ['🍒','🍋','🍇','⭐','🔔','💎','7️⃣'];
+            let animationIntervals = [];
+            
+            function startReelAnimations(){
+                for(let i = 0; i < 3; i++){
+                    const reelEl = document.getElementById(`reelSymbols${i}`);
+                    const interval = setInterval(() => {
+                        reelEl.innerHTML = '';
+                        for(let row = 0; row < 3; row++){
+                            const sym = document.createElement('div');
+                            sym.className = 'symbol spinning';
+                            sym.textContent = ALL_SYMBOLS[Math.floor(Math.random()* ALL_SYMBOLS.length)];
+                            reelEl.appendChild(sym);
+                        }
+                    }, 100 + i * 30);
+                    animationIntervals.push(interval);
+                }
+            }
+            function stopReelAnimations(){
+                animationIntervals.forEach(
+                    interval =>clearInterval(interval)
+                );
+                animationIntervals = [];
+            }
+            //Display Results
+            function displayResult(data){
+                for(let reel = 0; reel < 3; reel++){
+                    const reelEl = document.getElementById(`reelSymbols${reel}`);
+                    reelEl.innerHTML = '';
+                    for(let row = 0; row < 3; row++){
+                        const sym = document.createElement('div');
+                        sym.className = 'symbol';
+                        sym.textContent = data.rows[row][reel];
+                        reelEl.appendChild(sym);
+                    }
+                }
+                if(data.winningLines){
+                    data.winningLines.forEach((won,index) => {
+                        if(won){
+                            highlightWinningLine(index);
+                        }
+                    });
+                }
+                showResult(data.resultMessage,data.won);
+                const changeEl = document.getElementById('coinChangeDisplay');
+                if(data.coinChange > 0){
+                    changeEl.textContent = `+${data.coinChange} coins`;
+                    changeEl.className = 'coin-change-display positive';
+                }
+                else{
+                    changeEl.textContent = `${data.coinChange} coins`;
+                    changeEl.className = 'coin-change-display negative';
+                }
+            }
+            //Winning Line Highlights
+            function highlightWinningLine(lineIndex){
+                const line = document.getElementById(`payline${lineIndex}`);
+                const dot = document.getElementById(`line${lineIndex}`);
+                if(line){
+                    line.classList.add('active');
+                }
+                if(dot){
+                    dot.classList.add('active');
+                }
+            }
+            function clearWinningLines(){
+                for(let i = 0; i < 3; i++){
+                    const line = document.getElementById(`payline${i}`);
+                    const dot = document.getElementById(`line${i}`);
+                    if(line){
+                        line.classList.remove('active');
+                    }
+                    if(dot){
+                        dot.classList.remove('active');
+                    }
+                }
+            }
+            //Show Result
+            function showResult(message,won){
+                const el = document.getElementById('resultDisplay');
+                el.textContent = message;
+                el.className = 'result-display ' + (won ? 'result-win' : '');
+            }
+            //return animation delay multiplier
+            function getAnimationMultiplier(){
+                const speed = localStorage.getItem('animationSpeed') || 'normal';
+                switch(speed){
+                    case 'fast': return 0.4;
+                    case 'normal': return 1.0;
+                    case 'slow': return 1.8;
+                    default: return 1.0;
+                }
+            }
+         </script>
+    </body>
+</html>

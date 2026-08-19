@@ -12,8 +12,7 @@
         <div class="bh-back-btn">
             <button class="bj-back-btn" onclick="window.location.href='../welcome.html'"> <- Back</button>
             <div class="bj-topbar-title">Blackjack</div>
-            <div class="bj-topbar-coins"> 🪙 <span id="topbarCoins">—</span>
-            </div>
+            <div class="bj-topbar-coins"> 🪙 <span id="topbarCoins">—</span></div>
         </div>
         <!--Main table-->
         <div class="bj-table-wrapper">
@@ -94,7 +93,7 @@
                     <button class="bj-btn bj-btn-secondary" onclick="skipAnimations()" id="skipBtn">Skip</button>
                     <button class="bj-btn bj-btn-gold" onclick="playerHit()" id="hitBtn">Hit</button>
                     <button class="bj-btn bj-btn-outline" onclick="playerStand()" id="standBtn">Stand</button>
-                    <button class="bj-btn bj-btn-double" onclick="playerDoubleDown()" id="doubleDownbtn">Double Down</button>
+                    <button class="bj-btn bj-btn-double" onclick="playerDoubleDown()" id="doubleDownBtn">Double Down</button>
                     <button class="bj-btn bj-btn-danger" onclick="playerSurrender()" id="surrenderBtn">Surrender</button>
                     <button class="bj-btn bj-btn-split" onclick="playerSplit()" id="splitBtn" style="display:none">Split</button>
                     <div id="splitIndicator" style="display:none">
@@ -146,8 +145,8 @@
                     </div>
                     <!--Step 4-->
                     <div class="htp-step" id="step4" style="display:none">
-                        <div class="htp-step-title">How a Round Works</div>
-                        <div class="htp-step-body">First, you must place your bets (remember that you need to bet a minimum of 10 and a maximum of 75). Then you will be have the option to either hit (get one more card) or stand.</div>
+                        <div class="htp-step-title">How a Round Works (Basics)</div>
+                        <div class="htp-step-body">First, you must place your bets (remember that you need to bet a minimum of 10 and a maximum of 75). Then you will have multiple options. The most basic of the options is to stand (keep your total card values) or hit (get an extra card and add their card value to it).</div>
                         <div class="htp-nav">
                             <button class="bj-btn bj-btn-secondary" onclick="nextStep(3)">← Back</button>
                             <button class="bj-btn bj-btn-gold" onclick="nextStep(5)">Next →</button>
@@ -155,10 +154,19 @@
                     </div>
                     <!--Step 5-->
                     <div class="htp-step" id="step5" style="display:none">
+                        <div class="htp-step-title">One time buttons</div>
+                        <div class="htp-step-body">Other than hitting and standing, you will have an option to surrender (give up and lose half your bet), double down (double bet and hit once), and split(creating two seperate bets if cards have the same face value) These buttons will only be available once you get your cards.</div>
+                        <div class="htp-nav">
+                            <button class="bj-btn bj-btn-secondary" onclick="nextStep(4)">← Back</button>
+                            <button class="bj-btn bj-btn-gold" onclick="nextStep(6)">Next →</button>
+                        </div>
+                    </div>
+                    <!--Step 6-->
+                    <div class="htp-step" id="step6" style="display:none">
                         <div class="htp-step-title">Payouts</div>
                         <div class="htp-step-body">A win pays a 1:1, while blackjack (ace and a 10 card value) pays 3:2. A tie will lead to a push or a refund of your bet while a lose will result in you losing your bet.</div>
                         <div class="htp-nav">
-                            <button class="bj-btn bj-btn-secondary" onclick="nextStep(4)">← Back</button>
+                            <button class="bj-btn bj-btn-secondary" onclick="nextStep(5)">← Back</button>
                             <button class="bj-btn bj-btn-gold" onclick="closeHowToPlay()"> Got it, let's play!</button>
                         </div>
                     </div>
@@ -199,6 +207,18 @@
                         <span>Hold your hand</span>
                     </div>
                     <div class="bj-help-row">
+                        <span>Split</span>
+                        <span>Split hand to two bets</span>
+                    </div>
+                    <div class="bj-help-row">
+                        <span>Surrender</span>
+                        <span>Give up and lose half your bet</span>
+                    </div>
+                    <div class="bj-help-row">
+                        <span>Double Down</span>
+                        <span>Double your bet and hit once automatically</span>
+                    </div>
+                    <div class="bj-help-row">
                         <span>Skip</span>
                         <span>Skip animations</span>
                     </div>
@@ -216,6 +236,10 @@
                     <div class="bj-help-row">
                         <span>Push</span>
                         <span>Bet returned</span>
+                    </div>
+                    <div class="bj-help-row">
+                        <span>Surrender</span>
+                        <span>Lose half your bet</span>
                     </div>
                 </div>
                 <div class="bj-help-section">
@@ -361,7 +385,7 @@
                 nextStep(stepNumber);
             }
             function nextStep(stepNumber){
-                for(let i = 1; i<=5; i++){
+                for(let i = 1; i<=6; i++){
                     const step = document.getElementById(`step${i}`);
                     if(step){
                         step.style.display = i === stepNumber ? 'block':'none';
@@ -441,9 +465,11 @@
                     showBetError('Minimum bet is 10 coins.');
                     return;
                 }
+
                 skipAnimationsEnabled = false;
                 clearTable();
-                const response = await apiRequest('/blackjack/start', 'POST',{ betAmount: currentBet });
+
+                const response = await apiRequest('/blackjack/start', 'POST', { betAmount: currentBet });
                 if (!response) {
                     return;
                 }
@@ -452,22 +478,27 @@
                     showBetError(data.message || 'Could not start round.');
                     return;
                 }
+
                 const data = await response.json();
                 gameState = data;
                 showGameControls();
                 enableGameButtons();
                 showFirstActionButtons();
                 await renderGameState(data, true);
+
                 const playerSeat = data.seats.find(s => s.seatType === 'PLAYER');
-                if (playerSeat && playerSeat.cards.length === 2) {
+                const splitBtn = document.getElementById('splitBtn');
+                if(splitBtn && playerSeat && playerSeat.cards.length === 2){
                     const canSplit = playerSeat.cards[0].displayValue === playerSeat.cards[1].displayValue;
-                    const splitBtn = document.getElementById('splitBtn');
-                    if (splitBtn) {
-                        splitBtn.style.display = canSplit ? 'inline-block' : 'none';
-                    }
+                    splitBtn.style.display = canSplit ? 'inline-block' : 'none';
                 }
+                else if(splitBtn){
+                    splitBtn.style.display = 'none';
+                }
+
                 document.getElementById('topbarCoins').textContent = data.playerCoins.toLocaleString();
                 localStorage.setItem('coins', data.playerCoins);
+
                 if (data.phase === 'PLAYER_TURN') {
                     startTimer();
                 }
@@ -634,6 +665,13 @@
                     enableGameButtons();
                     return;
                 }
+                if(!response.ok){
+                    const data = await response.json();
+                    showBetError(data.message || 'Could not hit.');
+                    enableGameButtons();
+                    startTimer();
+                    return;
+                }
                 const data = await response.json();
                 gameState = data;
                 await renderGameState(data, true);
@@ -643,11 +681,12 @@
                     hideSplitControls();
                     showRoundOver(data);
                 }
-                else if(data.phase === 'PLAYER_TURN'){
-                    const isSplitTurn = data.seats.find(s => s.seatType === 'PLAYER') ?.activeHand === 'split';
-                    if(isSplitTurn){
-                        showSplitControls(true);
-                    }
+                else{
+                    const playerSeat = data.seats.find(
+                        s => s.seatType === 'PLAYER'
+                    );
+                    const isSplitTurn = playerSeat?.activeHand === 'split';
+                    showSplitControls(isSplitTurn);
                     enableGameButtons();
                     startTimer();
                 }
@@ -662,24 +701,25 @@
                 }
                 const data = await response.json();
                 gameState = data;
-                if(skipAnimationsEnabled){
-                    await renderGameState(data, false);
-                }
-                else{
-                    const playerSeat = data.seats.find(s => s.seatType === 'PLAYER');
-                    if(playerSeat?.activeHand === 'split'){
-                        await renderGameState(data, true);
-                        showSplitControls(true);
-                        enableGameButtons();
-                        startTimer();
-                        return;
+                if(data.phase === 'ROUND_OVER'){
+                    if(skipAnimationsEnabled){
+                        await renderGameState(data,false);
                     }
-                    await animateStandSequence(data);
+                    else{
+                        await animateStandSequence(data);
+                    }
+                    document.getElementById('topbarCoins').textContent = data.playerCoins.toLocaleString();
+                    localStorage.setItem('coins', data.playerCoins);
+                    hideSplitControls();
+                    showRoundOver(data);
+                    return;
                 }
+                await renderGameState(data, true);
                 document.getElementById('topbarCoins').textContent = data.playerCoins.toLocaleString();
                 localStorage.setItem('coins', data.playerCoins);
-                hideSplitControls();
-                showRoundOver(data);
+                showSplitControls(true);
+                enableGameButtons();
+                startTimer();
             }
             //shows split controls
             function showSplitControls(isSplitHand) {
@@ -722,11 +762,19 @@
             //Update the player seat rendering for split
             function renderPlayerHands(seat, animate) {
                 const cardsEl = document.getElementById('cards3');
+                const totalEl = document.getElementById('total3');
+                const bet3 = document.getElementById('bet3');
                 if (!cardsEl) {
                     return;
                 }
                 cardsEl.innerHTML = '';
                 if (!seat.isSplit) {
+                    if(bet3){
+                        bet3.style.display = 'block';
+                    }
+                    if(totalEl){
+                        totalEl.style.display = 'block';
+                    }
                     seat.cards.forEach((card, index) => {
                         const cardEl = createCardElement(card);
                         if (animate && !skipAnimationsEnabled) {
@@ -736,6 +784,13 @@
                         cardsEl.appendChild(cardEl);
                     });
                     return;
+                }
+                if(bet3){
+                    bet3.style.display = 'none';
+                }
+                if(totalEl){
+                    totalEl.textContent = '';
+                    totalEl.style.display = 'none';
                 }
                 const splitContainer = document.createElement('div');
                 splitContainer.className = 'bj-split-hands';
@@ -806,6 +861,7 @@
                 stopTimer();
                 clearTable();
                 enableGameButtons();
+                hideSplitControls();
                 await loadCoins();
                 showBettingControls();
            
@@ -823,6 +879,7 @@
                     if(totalEl){
                         totalEl.textContent = '';
                         totalEl.className = 'bj-seat-total';
+                        totalEl.style.display = 'block';
                     }
                     if(chipsEl){
                         chipsEl.innerHTML = '';
@@ -830,6 +887,10 @@
                     if(betAmountEl){
                         betAmountEl.textContent = '';
                     }
+                }
+                const bet3 = document.getElementById('bet3');
+                if(bet3){
+                    bet3.style.display = 'block';
                 }
             }
             //Show round over results
@@ -926,11 +987,12 @@
                 if(!bot.botPersonality){
                     return 800;
                 }
+                const mult = getAnimationMultiplier();
                 switch (bot.botPersonality){
-                    case 'PASSIVE': return 1400;
-                    case "NEUTRAL": return 900;
-                    case "AGGRESSIVE": return 500;
-                    default: return 800;
+                    case 'PASSIVE': return 1400 * mult;
+                    case "NEUTRAL": return 900 * mult;
+                    case "AGGRESSIVE": return 500 * mult;
+                    default: return 800 * mult;
                 }
             }
             //Shows a thinking indicator
@@ -967,9 +1029,9 @@
             //Render a single seat
             function renderSeat(seat, animate){
                 if(seat.seatType === 'PLAYER' && seat.isSplit){
-                    renderPlayerSplitHands(seat,animate);
+                    renderPlayerHands(seat, animate); // correct name
                     return;
-                }
+            }
                 const cardsEl = document.getElementById(`cards${seat.seatNumber}`);
                 const totalEl = document.getElementById(`total${seat.seatNumber}`);
                 if(seat.seatType === 'BOT'){
@@ -1136,26 +1198,29 @@
                 document.getElementById('hitBtn').disabled = false;
                 document.getElementById('standBtn').disabled = false;
                 document.getElementById('surrenderBtn').disabled = false;
-            }   
+            }
+            function setSplitButtonVisible(visible){
+                const splitBtn = document.getElementById('splitBtn');
+                if(splitBtn){
+                    splitBtn.style.display = visible ? 'inline-block' : 'none';
+                }
+            }
             //Hide Surrender and double down after first action
             function hideFirstActionButtons(){
                 const surrenderBtn = document.getElementById('surrenderBtn');
-                const doubleDownBtn = document.getElementById('doubleDownbtn');
-                const splitBtn = document.getElementById('splitBtn');
+                const doubleDownBtn = document.getElementById('doubleDownBtn');
+                setSplitButtonVisible(false);
                 if(surrenderBtn){
                     surrenderBtn.style.display = 'none';
                 }
                 if(doubleDownBtn){
                     doubleDownBtn.style.display = 'none';
                 }
-                if(splitBtn){
-                    splitBtn.style.display = 'none';
-                }
             }
             //Shows surrender and down down at start of round
             function showFirstActionButtons(){
                 const surrenderBtn = document.getElementById('surrenderBtn');
-                const doubleDownBtn = document.getElementById('doubleDownbtn');
+                const doubleDownBtn = document.getElementById('doubleDownBtn');
                 if(surrenderBtn){
                     surrenderBtn.style.display = "inline-block";
                 }
@@ -1172,6 +1237,17 @@
                 document.body.classList.remove('dark-mode', 'light-mode');
                 if(savedTheme === 'dark'){
                     document.body.classList.add('dark-mode');
+                }
+            }
+
+            //Return animation delay multiplier
+            function getAnimationMultiplier(){
+                const speed = localStorage.getItem('animationSpeed') || 'normal';
+                switch(speed){
+                    case 'fast': return 0.4;
+                    case 'normal': return 1.0;
+                    case 'slow': return 1.8;
+                    default: return 1.0;
                 }
             }
                 

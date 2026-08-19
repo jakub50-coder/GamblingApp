@@ -53,6 +53,10 @@
                     <!-- Signup Form -->
                     <div id="signupForm" style="display:none">
                         <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type ="email" id="signupEmail" class="form-input" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Username</label>
                             <input type="text" id="signupUsername" class="form-input"
                                    placeholder="Choose a username">
@@ -90,13 +94,13 @@
             <div id="forgotOverlay" onclick="closeForgotModel()"></div>
             <div id="forgotBox">
                 <div id="forgotTitle">Forgot Passwords</div>
-                <div id="forgotMessage">Enter your username and we will help you reset your password</div>
+                <div id="forgotMessage">Enter your email and we will help you reset your password</div>
                 <div class="form-group">
-                    <label class="form-label">Username</label>
-                    <input type="text" id="forgotUsername" class="form-input" placeholder="Enter your username">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="forgotUsername" class="form-input" placeholder="Enter your email">
                 </div>
                 <div class="form-error" id="forgotError"></div>
-                <div class="form-success" id="forgotSuccess" style="display:none"> If the username exists, a resent link will be sent.</div>
+                <div class="form-success" id="forgotSuccess" style="display:none"> If the email exists, a reset link will be sent.</div>
                 <div id="forgotButtons">
                     <button id="forgotCancel" onclick="closeForgotModel()">Cancel</button>
                     <button id="forgotSubmit" onclick="handleForgotPassword()">Submit</button>
@@ -152,23 +156,47 @@
 
             //handles forgot password submission
             function handleForgotPassword(){
-                const username = document.getElementById('forgotUsername').value.trim();
+                const email = document.getElementById('forgotUsername').value.trim();
                 const errorEl = document.getElementById('forgotError');
                 const successEl = document.getElementById('forgotSuccess');
 
                 errorEl.textContent = '';
                 successEl.style.display = 'none';
 
-                if(!username){
-                    showError('forgotError', 'Please enter your username.');
+                if(!email){
+                    showError('forgotError', 'Please enter your email address.');
                     return;
                 }
 
-                successEl.style.display = 'flex';
-                setTimeout(() => {
-                    closeForgotModel();
-                }, 3000);
+                if(!email.includes('@')){
+                    showError('forgotError', 'Please enter a valid email address.');
+                    return;
+                }
+                fetch(`${API_BASE}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                })
+                .then(async res => {
+                    let data = {};
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        data = {};
+                    }
 
+                    if (res.ok) {
+                        successEl.style.display = 'flex';
+                        setTimeout(() => {
+                            closeForgotModel();
+                        }, 3000);
+                    } else {
+                        showError('forgotError', data.message || 'Could not send the password reset email.');
+                    }
+                })
+                .catch(() => {
+                    showError('forgotError', 'Could not connect to the server.');
+                });
             }
             // Gets the login information and sends it to the server
             async function handleLogin() {
@@ -218,6 +246,7 @@
 
             // Handles signup and auto-login after account creation
             async function handleSignup() {
+                const email = document.getElementById('signupEmail').value.trim();
                 const username = document.getElementById('signupUsername').value.trim();
                 const password = document.getElementById('signupPassword').value;
                 const confirm = document.getElementById('signupConfirm').value;
@@ -228,6 +257,11 @@
                 // Makes sure all fields are filled out
                 if (!username || !password || !confirm) {
                     errorEl.textContent = 'Please fill in all fields.';
+                    return;
+                }
+                //checks to see if email is good
+                if(!email || !email.includes('@')){
+                    showError('signupError', 'Please enter a valid email.');
                     return;
                 }
 
@@ -242,7 +276,7 @@
                     const signupResponse = await fetch(`${API_BASE}/auth/signup`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({email,username, password })
                     });
 
                     const signupData = await signupResponse.json();
@@ -256,7 +290,7 @@
                     const loginResponse = await fetch(`${API_BASE}/auth/login`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({ email, username, password })
                     });
 
                     const loginData = await loginResponse.json();

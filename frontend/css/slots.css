@@ -1,0 +1,598 @@
+/*CSS Variable */
+:root{
+    --gold: #f0b429;
+    --gold-hover: #d4a017;
+    --machine-bg: #1a0a2e;
+    --machine-border: #8b6914;
+    --machine-gold: #c8a84b;
+    --reel-bg:#ffffff;
+    --reel-border:#2a2a3a;
+    --text-light: #f0f0f0;
+    --text-dark: #1a1a2e;
+    --danger: #e05c5c;
+    --success: #4caf82;
+    --sidebar-bg: #ffffff;
+    --border-color: #e0e0ee;
+    --bg-main: #f0f2f5;
+    --transition: all 0.2s ease;
+}
+
+body.dark-mode{
+    --sidebar-bg: #1a1a24;
+    --border-color: #2a2a3a;
+    --bg-main: #0f0f13;
+    --text-dark:#f0f0f0;
+}
+
+/*Reset*/
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    font-family: 'Segoe Ui', system-ui, sans-serif;
+    background: var(--bg-main);
+    color:var(--text-dark);
+    min-height: 100vh;
+    display:flex;
+    flex-direction: column;
+    overflow-x:hidden;
+}
+/*Top Bar */
+.slots-topbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+.slots-back-btn{
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-dark);
+    padding: 7px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.slots-back-btn:hover{
+    background: var(--border-color);
+}
+.slots-topbar-title{
+    font-size: 18px;
+    font-weight: 700;
+    color:var(--gold);
+    letter-spacing: 1px;
+}
+.slots-topbar-coins{
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+}
+/*Payout Bar */
+.payout-bar{
+    background: var(--machine-bg);
+    border-bottom: 2px solid var(--machine-gold);
+    padding: 10px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+.payout-bar::-webkit-scrollbar{
+    display:none;
+}
+.payout-bar-title{
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--machine-gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    opacity:1;
+    visibility: visible;
+}
+.payout-bar-items{
+    display: flex;
+    gap: 0;
+    align-items: center;
+    justify-content:space-between;
+    width:100%;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+.payout-item{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 8px;
+    border-right: 1px solid rgba(200,168,75,0.2);
+    flex:1;
+    min-width: 0;
+}
+.payout-item:last-child{
+    border-right:none;
+}
+.payout-symbols{
+    font-size: 14px;
+    white-space:none;
+}
+.payout-multiplier{
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    background: rgba(240,180,41,.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+/*Main Slot Area*/
+.slots-main{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    min-height:0;
+}
+/*Slot Machine*/
+.slot-machine{
+    background: var(--machine-bg);
+    border: 6px solid var(--machine-border);
+    border-radius: 24px;
+    padding: 16px;
+    width: min(560px, 95vw);
+    min-height:50vh;
+    box-shadow:
+        0 0 0 3px #5a4209,
+        0 0 40px rgba(0,0,0,0.5),
+        inset 0 0 40px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/*Machine Top */
+.machine-top{
+    text-align: center;
+    padding: 8px 0;
+}
+.machine-title{
+    font-size: clamp(16px, 4vw, 22px);
+    font-weight: 900;
+    color:  var(--gold);
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px rgba(240, 180, 41, 0.5);
+}
+.machine-lights{
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+.light{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 6px var(--gold);
+    animation: blink 1.5s infinite alternative;
+}
+.light:nth-child(2){
+    animation-delay: 0.3s;
+}
+.light:nth-child(3){
+    animation-delay: 0.6s;
+}
+.light:nth-child(4){
+    animation-delay: 0.9s;
+}
+.light:nth-child(5){
+    animation-delay: 1.2s;
+}
+@keyframes blink{
+    from{ 
+        opacity: 1;
+    }
+    to{
+        opacity: 0.2;
+    }
+}
+/*Reels Container*/
+.reels-container{
+    position: relative;
+    background:#0a0a14;
+    border-radius: 12px;
+    border: 3px solid var(--machine-gold);
+    padding: 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+/*Payline Indicators*/
+.payline-indicators{
+    position: absolute;
+    left: -28px;
+    top:0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+}
+.payline-dot{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #333;
+    border: 2px solid #555;
+    transition: var(--transition);
+}
+.payline-dot.active{
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+}
+/*Reels*/
+.reels{
+    display: flex;
+    align-items: center;
+    gap: 0;
+    justify-content: center;
+}
+.reel{
+    flex:1;
+    background:white;
+    border-radius: 8px;
+    overflow: hidden;
+    height: clamp(200px, 35vw, 280px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.reel-divider{
+    width: 8px;
+    height: clamp(200px, 35vw, 280px);
+    background: var(--machine-gold);
+    flex-shrink: 0;
+}
+.reel-symbols{
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: space-around;
+    height: 100%;
+    width: 100%;
+    padding: 8px 0;
+}
+.symbol{
+    font-size:clamp(36px, 9vw, 64px);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 33.33%;
+    width: 100%;
+    text-align:center;
+    transition: transform .1s ease;
+}
+.symbol.spinning{
+    animation: symbolFlash 0.1s infinite;
+}
+@keyframes symbolFlash{
+    0%{
+        transform: translateY(-4px); opacity: 0.7;
+    }
+    50%{
+        transform: translateY(4px); opacity: 1;
+    }
+    100%{
+        transform: translateY(-4px); opacity: 0.7;
+    }
+}
+/*Paylines Overlay*/
+.paylines-overlay{
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.payline-line{
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    transition: var(--transition);
+}
+#payline0{
+    top:calc(12px + 16.67%);
+}
+#payline1{
+    top:calc(12px + 50%);
+}
+#payline2{
+    top:calc(12px + 83.33%);
+}
+.payline-line.active{
+    background:rgba(240,180,41,0.7);
+    box-shadow: 0 0 8px var(--gold);
+}
+/*Result Display*/
+.result-display{
+    text-align: center;
+    font-size: clamp(13px, 2.5vw, 16px);
+    font-weight: 600;
+    color: rgba(200,168,75,0.8);
+    padding: 8px;
+    min-height: 36px;
+    transition: var(--transition);
+}
+.result-display.result-win{
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(240,180,41,0.5);
+    animation:winPulse 0.5s ease infinite alternate;
+}
+@keyframes winPulse{
+    from{
+        transform: scale(1);
+    }
+    to{
+        transform: scale(1.03);
+    }
+}
+/*Machine Bottom*/
+.machine-bottom{
+    text-align:center;
+    font-size: 20px;
+    padding: 4px 0;
+}
+/*Controls*/
+.slots-controls{
+    padding: 16px 20px;
+    background: var(--sidebar-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+/*Bet Section*/
+.bet-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.bet-label{
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+body.dark-mode .bet-label{
+    color: #a0a0b0;
+}
+.bet-adjuster{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.bet-btn{
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #0f0f13;
+    border: none;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.bet-btn:hover{
+    background: var(--gold-hover);
+    transform: scale(1.1);
+}
+.bet-amount{
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 70px;
+    text-align: center;
+}
+.bet-limits{
+    font-size: 11px;
+    color: #888;
+}
+body.dark-mode .bet-limits{
+    color: #606070;
+}
+/*Spin Button*/
+.spin-btn{
+    padding: 16px 48px;
+    background: radial-gradient(circle at center, #ff4444 0%, #cc0000 100%);
+    color: white;
+    border: 4px solid #ff6666;
+    border-radius: 50px;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: var(--transition);
+    box-shadow:
+        0 6px 20px rgba(204, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255,255,255,0.2);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.spin-btn:hover:not(:disabled){
+    transform: translateY(-2px) scale(1.02);
+    box-shadow:
+        0 10px 28px rgba(204, 0, 0, 0.5),
+        inset 0 2px 4px rgba(255,255,255, 0.2);
+}
+.spin-btn:active:not(:disabled){
+    transform: translateY(1px) scale(0.98);
+}
+.spin-btn:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform:none;
+}
+/*Coin Change Display*/
+.coin-change-display{
+    font-size: 18px;
+    font-weight: 700;
+    min-width: 100px;
+    text-align: center;
+}
+.coin-change-display.positive{
+    color:  var(--success);
+}
+.coin-change-display.negative{
+    color:var(---danger);
+}
+/*How to Play Model*/
+#htpModel{
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.htp-overlay{
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter:blur(4px);
+}
+.htp-box{
+    position: relative;
+    background: white;
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 32px;
+    width: 90%;
+    max-width: 420px;
+    z-index: 1;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    text-align: center;
+}
+body.dark-mode .htp-box{
+    background: #1a1a24;
+}
+.htp-close{
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #e0e0ee;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: var(--transition);
+}
+.htp-close:hover{
+    background:var(--danger);
+    color:white
+}
+.htp-icon{
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+.htp-title{
+    font-size: 20px;
+    font-weight: 700;
+    color:var(--gold);
+    margin-bottom: 12px;
+}
+.htp-body{
+    font-size: 14px;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+body.dark-mode .htp-body{
+    color: #a0a0b0;
+}
+.htp-nav{
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.htp-btn{
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+}
+.htp-btn-gold{
+    background:var(--gold);
+    color: #0f0f13;
+}
+.htp-btn-gold:hover{
+    background:var(--gold-hover);
+}
+.htp-btn-secondary{
+    background:#e0e0ee;
+    color:#1a1a2e;
+}
+body.dark-mode .htp-btn-secondary{
+    background: #2a2a3a;
+    color: #f0f0f0;
+}
+/*Info Button*/
+.info-btn{
+    position:fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold);
+    color:#0f0f13;
+    border:none;
+    font-size:18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(240,180,41,0.4);
+    transition: var(--transition);
+    z-index: 90;
+}
+.info-btn:hover{
+    transform:scale(1.1);
+}
+/*Responsive*/
+@media(max-width: 480px){
+    .slot-controls{
+        gap:16px;
+        padding: 12px;
+    }
+    .spin-btn{
+        padding: 14px 36px;
+    }
+    .payout-bar{
+        padding: 6px 12px;
+    }
+}

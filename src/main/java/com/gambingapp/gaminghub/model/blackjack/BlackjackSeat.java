@@ -83,12 +83,12 @@ public class BlackjackSeat{
     }
 
     //return true if seat can split
-    public boolean canSplit() {
-        if(hand.size() != 2){
-            return false;
-        }
-        return hand.get(0).getBlackjackValue() == hand.get(1).getBlackjackValue();
+public boolean canSplit() {
+    if(hand.size() != 2){
+        return false;
     }
+    return hand.get(0).getBlackjackValue() == hand.get(1).getBlackjackValue();
+}
     //split the cards 
     public void performSplit(){
         splitHand = new ArrayList<>();

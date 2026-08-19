@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gaming Hub — Roulette</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/roulette.css">
+    </head>
+    <body>
+        <!--Top Bar-->
+        <div class="rt-topbar">
+            <button class="rt-back-btn" onclick="handleBack()">← Back</button>
+            <div class="rt-topbar-title">Roulette</div>
+            <div class="rt-topbar-coins">🪙<span id="topbarCoins">-</span></div>
+        </div>
+        <!--Choice Screen-->
+        <div id="choiceScreen" class="choice-screen">
+            <div class="choice-title">Choose your game</div>
+            <div class="choice-subtitle">Same table, different wheel odds</div>
+            <div class="choice-cards">
+                <div class="choice-card" onclick="selectWheel('european')">
+                    <div class="choice-card-title">European Roulette</div>
+                    <div class="choice-card-numbers">0 - 36</div>
+                    <div class="choice-card-desc">37 numbers · House Edge 2.7%</div>
+                    <div class="choice-card-tag better">Better odds for players</div>
+                    <button class="choice-btn choice-btn-eu">Play European Roulette</button>
+                </div>
+                <div class="choice-card choice-card-featured" onclick="selectWheel('french')">
+                    <div class="choice-card-title">French Roulette</div>
+                    <div class="choice-card-numbers">0 - 36</div>
+                    <div class="choice-card-desc">37 numbers · House Edge 1.35%</div>
+                    <div class="choice-card-tag best">Best odds</div>
+                    <div class="choice-card-rule">La Partage - zero returns half your outside bets</div>
+                    <button class="choice-btn choice-btn-fr">Play French Roulette</button>
+                </div>
+                <div class="choice-card" onclick="selectWheel('american')">
+                    <div class="choice-card-title">American Roulette</div>
+                    <div class="choice-card-numbers">0, 00 - 36</div>
+                    <div class="choice-card-desc">38 numbers · House edge 5.26%</div>
+                    <div class="choice-card-tag classic">Classic casino style</div>
+                    <button class="choice-btn choice-btn-us">Play American Roulette</button>
+                </div>
+            </div>
+            <div class="comparison-row">
+                <span>Style: </span>
+                <span>EU · FR · US</span>
+            </div>
+            <div class="choice-comparison">
+                <div class="comparison-row">
+                    <span>Numbers on wheel</span>
+                    <span>37 · 37 · 38</span>
+                </div>
+                <div class="comparison-row">
+                    <span>Zero pockets</span>
+                    <span>One (0) vs One (0) Two (0, 00)</span>
+                </div>
+                <div class="comparison-row">
+                    <span>La Partage rule</span>
+                    <span>No · Yes · No</span>
+                </div>
+                <div class="comparison-row">
+                    <span>House advantage</span>
+                    <span>2.7% · 1.35% · 5.26%</span>
+                </div>
+            </div>
+        </div>
+        <!--Game Screen-->
+        <div id="gameScreen" style="display:none">
+            <!--Wheel type indicator-->
+            <div class="wheel-indicator" id="wheelIndicator"></div>
+            <!--Roulette Table-->
+            <div class="rt-table-wrapper">
+                <div class="rt-table" id="rouletteTable">
+                    <!--Zero section-->
+                    <div class="rt-zeros">
+                        <div class="rt-cell rt-zero" data-bet="STRAIGHT" data-target="0" onclick="placeBet('STRAIGHT', 0)">0</div>
+                        <div class="rt-cell rt-double-zero" id="doubleZeroCell" data-bet="STRAIGHT" data-target="37" onclick="placeBet('STRAIGHT', 37)" style="display:none">00</div>
+                    </div>
+                    <!--Number Grid 1 - 36-->
+                    <div class="rt-numbers" id="numbersGrid"></div>
+                    <!--Outside bets-->
+                    <div class="rt-outside">
+                        <!--Dozens-->
+                        <div class="rt-outside-row">
+                            <div class="rt-cell rt-dozen" data-bet="DOZEN" data-target="1" onclick="placeBet('DOZEN', 1)">1st 12</div>
+                            <div class="rt-cell rt-dozen" data-bet="DOZEN" data-target="2" onclick="placeBet('DOZEN', 2)">2nd 12</div>
+                            <div class="rt-cell rt-dozen" data-bet="DOZEN" data-target="3" onclick="placeBet('DOZEN', 3)">3rd 12</div>
+                        </div>
+                        <!--Even money bets-->
+                        <div class="rt-outside-row">
+                            <div class="rt-cell rt-even-money" data-bet="LOW" data-target="0" onclick="placeBet('LOW', 0)">1-18</div>
+                            <div class="rt-cell rt-even-money" data-bet="EVEN" data-target="0" onclick="placeBet('EVEN', 0)">Even</div>
+                            <div class="rt-cell rt-red-bet" data-bet="RED" data-target="0" onclick="placeBet('RED', 0)">Red</div>
+                            <div class="rt-cell rt-black-bet" data-bet="BLACK" data-target="0" onclick="placeBet('BLACK', 0)">Black</div>
+                            <div class="rt-cell rt-even-money" data-bet="ODD" data-target="0" onclick="placeBet('ODD', 0)">Odd</div>
+                            <div class="rt-cell rt-even-money" data-bet="HIGH" data-target="0" onclick="placeBet('HIGH', 0)">19-36</div>
+                        </div>
+                        <!--Columns-->
+                        <div class="rt-outside-row">
+                            <div class="rt-cell rt-column" data-bet="COLUMN" data-target="1" onclick="placeBet('COLUMN', 1)">Column 1</div>
+                            <div class="rt-cell rt-column" data-bet="COLUMN" data-target="2" onclick="placeBet('COLUMN', 2)">Column 2</div>
+                            <div class="rt-cell rt-column" data-bet="COLUMN" data-target="3" onclick="placeBet('COLUMN', 3)">Column 3</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Result Display-->
+            <div class="rt-result-wrap" id="resultWrap" style="display:none">
+                <div class="rt-result-number" id="resultNumber">0</div>
+                <div class="rt-result-info" id="resultInfo"></div>
+                <div class="rt-result-message" id="resultMessage"></div>
+                <div class="rt-coin-change" id="coinChange"></div>
+            </div>
+            <!--Controls-->
+            <div class="rt-controls">
+                <!--Chip Selector-->
+                <div class="rt-chip-section">
+                    <div class="rt-chip-label">Chip Value</div>
+                    <div class="rt-chips">
+                        <div class="rt-chip chip-white active" data-value="10" onclick="selectChip(10)">10</div>
+                        <div class="rt-chip chip-red" data-value="25" onclick="selectChip(25)">25</div>
+                        <div class="rt-chip chip-green" data-value="50" onclick="selectChip(50)">50</div>
+                        <div class="rt-chip chip-black" data-value="100" onclick="selectChip(100)">100</div>
+                    </div>
+                </div>
+                <!--Bet summary-->
+                <div class="rt-bet-summary">
+                    <div class="rt-bet-total">Total Bet: <span id="totalBetDisplay">0</span></div>
+                    <div class="rt-bet-list" id="betList"></div>
+                </div>
+                <!--Action Buttons-->
+                <div class="rt-action-buttons">
+                    <button class="rt-btn rt-btn-secondary" onclick="clearBets()">Clear</button>
+                    <button class="rt-btn rt-btn-spin" id="spinBtn" onclick="spin()" disabled>Spin</button>
+                    <button class="rt-btn rt-btn-gold" id="newRoundBtn" onclick="newRound()" style="display:none">New Round</button>
+                </div>
+            </div>
+        </div>
+        <!--How to Play Model-->
+        <div id="htpModel" style="display:none">
+            <div class="htp-overlay"></div>
+            <div class="htp-box">
+                <button class="htp-close" onclick="closeHtp()">✕</button>
+                <div class="htp-step" id="htpStep1">
+                    <div class="htp-title">Welcome to Roulette!</div>
+                    <div class="htp-body">A ball spins around a numbered wheel and lands on a pocket. Bet on where you think it will land before the spin!</div>
+                    <div class="htp-nav">
+                        <button class="htp-btn htp-btn-gold" onclick="htpNext(2)">Next →</button>
+                    </div>
+                </div>
+                <div class="htp-step" id="htpStep2" style="display:none">
+                    <div class="htp-title">Placing Bets</div>
+                    <div class="htp-body">Select a chip value then click any spot on the table to place a bet. You can place multiple bets in one round. Click Clear to remove all bets.</div>
+                    <div class="htp-nav">
+                        <button class="htp-btn htp-btn-secondary" onclick="htpNext(1)">← Back</button>
+                        <button class="htp-btn htp-btn-gold" onclick="htpNext(3)">Next →</button>
+                    </div>
+                </div>
+                <div class="htp-step" id="htpStep3" style="display:none">
+                    <div class="htp-title">Bet Types</div>
+                    <div class="htp-body">Outside bets (Red/Black, Odd/Even, High/Low) pay 1:1. Dozens and Columns pay 2:1. A single number pays 35:1. Zero pays on Straight Up only</div>
+                    <div class="htp-nav">
+                        <button class="htp-btn htp-btn-secondary" onclick="htpNext(2)">← Back</button>
+                        <button class="htp-btn htp-btn-gold" onclick="closeHtp()">Let's Play!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Info Button-->
+        <button class="info-btn" onclick="showHtp()">?</button>
+        <script>
+            const API_BASE = 'http://localhost:8080/api'
+
+            //Game State
+            let isAmericanWheel = false;
+            let isFrenchWheel = false;
+            let selectedChipValue = 10;
+            let placedBets = [];
+            let isSpinning = false;
+
+            //Red numbers on standard roulette wheel
+            const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+
+            //INIT
+            window.onload = async () => {
+                if(!localStorage.getItem('token')){
+                    window.location.href = '../login.html';
+                    return;
+                }
+                applyTheme();
+                await loadCoins();
+                buildNumbersGrid();
+            };
+            //Theme
+            function applyTheme(){
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.body.classList.remove('dark-mode', 'light-mode');
+                if(savedTheme === 'dark'){
+                    document.body.classList.add('dark-mode');
+                }
+            }
+            //API Request
+            async function apiRequest(endpoint, method = 'GET', body = null){
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+                const options = {method, headers};
+                if(body){
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                if(response.status === 401 || response.status === 403){
+                    localStorage.clear();
+                    window.location.href = '../login.html';
+                    return null;
+                }
+                return response;
+            }
+            //Load Coins
+            async function loadCoins(){
+                const response = await apiRequest('/user/me');
+                if(!response){
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('topbarCoins').textContent = data.coins.toLocaleString();
+                localStorage.setItem('coins', data.coins);
+            }
+            //Wheel Selection
+            function selectWheel(type){
+                isAmericanWheel = type ==='american';
+                isFrenchWheel = type ==='french'
+                const dzCell = document.getElementById('doubleZeroCell');
+                if(dzCell){
+                    dzCell.style.display = isAmericanWheel ? 'flex': 'none';
+                }
+                const indicator = document.getElementById('wheelIndicator');
+                if(isFrenchWheel){
+                    indicator.textContent = 'French Roulette - La Partage applies';
+                    indicator.className = 'wheel-indicator french';
+                }
+                else if(isAmericanWheel){
+                    indicator.textContent = 'American Roulette (0,00)';
+                    indicator.className = 'wheel-indicator american';
+                }
+                else{
+                    indicator.textContent = 'European Roulette (0)';
+                    indicator.className = 'wheel-indicator european';
+                }
+                document.getElementById('choiceScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'block';
+                if(!localStorage.getItem('hasSeenRouletteTutorial')){
+                    showHtp();
+                }
+            }
+            //Back Button
+            function handleBack(){
+                const gameScreen = document.getElementById('gameScreen');
+                if(gameScreen.style.display !== 'none'){
+                    gameScreen.style.display = 'none';
+                    document.getElementById('choiceScreen').style.display = 'flex';
+                    clearBets();
+                    hideResult();
+                }
+                else{
+                    window.location.href = '../welcome.html';
+                }
+            }
+            //Build Numbers Grid
+            function buildNumbersGrid(){
+                const grid = document.getElementById('numbersGrid');
+                grid.innerHTML = '';
+                for(let row = 0; row < 3; row++){
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'rt-number-row';
+                    for(let col = 0; col < 12; col++){
+                        const num = (col * 3) + (3 - row);
+                        const isRed = RED_NUMBERS.has(num);
+                        const cell = document.createElement('div');
+                        cell.className = `rt-cell rt-number ${isRed ? 'rt-red': 'rt-black'}`;
+                        cell.textContent = num;
+                        cell.dataset.number = num;
+                        cell.dataset.bet = 'STRAIGHT';
+                        cell.dataset.target = num;
+                        cell.onclick = () => placeBet('STRAIGHT', num);
+                        rowEl.appendChild(cell);
+                    }
+                    grid.appendChild(rowEl);
+                }
+            }
+            //Chip Selection
+            function selectChip(value){
+                selectedChipValue = value;
+                document.querySelectorAll('.rt-chip').forEach(c => {c.classList.toggle('active',parseInt(c.dataset.value) === value);
+                });
+            }
+            //Place Bet
+            function placeBet(betType, target){
+                if(isSpinning){
+                    return;
+                }
+                const coins = parseInt(localStorage.getItem('coins') || '0');
+                const currentTotal = placedBets.reduce((sum,b) => sum + b.amount,0);
+                if(currentTotal + selectedChipValue > coins){
+                    showBetError('Not enough coins!');
+                    return;
+                }
+                if(selectedChipValue > 100){
+                    showBetError('Maximum chip is 100.');
+                    return;
+                }
+                const existing = placedBets.find(b => b.betType === betType && b.target === target);
+                if(existing){
+                    if(existing.amount + selectedChipValue > 100){
+                        showBetError('Max 100 per bet spot');
+                        return;
+                    }
+                    existing.amount += selectedChipValue;
+                }
+                else{
+                    placedBets.push({betType, target, amount: selectedChipValue});
+                }
+                showChipOnCell(betType, target);
+                updateBetDisplay();
+            }
+            //Show Chip on Cell
+            function showChipOnCell(betType, target){
+                const cell = findCell(betType, target);
+                if(!cell){
+                    return;
+                }
+                const existing = cell.querySelector('.placed-chip');
+                if(existing){
+                    existing.remove();
+                }
+                const bet = placedBets.find(b => b.betType === betType && b.target === target);
+                if(!bet){
+                    return;
+                }
+                const chip = document.createElement('div');
+                chip.className = 'placed-chip';
+                chip.textContent = bet.amount;
+                cell.appendChild(chip);
+                cell.classList.add('has-bet');
+            }
+            //Finds the table cell for a given bet
+            function findCell(betType, target){
+                if(betType === 'STRAIGHT'){
+                    if(target === 0){
+                        return document.querySelector('.rt-zero');
+                    }
+                    if(target === 37){
+                        return document.getElementById('doubleZeroCell');
+                    }
+                    return document.querySelector(`[data-number="${target}"]`);
+                }
+                return document.querySelector(`.rt-cell[data-bet="${betType}"][data-target="${target}"]`) || document.querySelector(`.rt-cell[data-bet="${betType}"]`);
+            }
+            //Update Bet Display
+            function updateBetDisplay(){
+                const total = placedBets.reduce((sum,b) => sum + b.amount,0);
+                document.getElementById('totalBetDisplay').textContent = total;
+                const spinBtn = document.getElementById('spinBtn');
+                spinBtn.disabled = total < 10;
+                const listEl = document.getElementById('betList');
+                listEl.innerHTML = '';
+                placedBets.forEach(bet => {
+                    const item = document.createElement('div');
+                    item.className = 'bet-list-item';
+                    item.textContent = `${formatBetName(bet)} + ${bet.amount} coins`;
+                    listEl.appendChild(item);
+                });
+            }
+            function formatBetName(bet){
+                switch(bet.betType){
+                    case 'STRAIGHT': return bet.target === 37 ? 'Number 00': `Number ${bet.target}`;
+                    case 'RED': return 'Red';
+                    case 'BLACK': return 'Black';
+                    case 'ODD': return 'Odd';
+                    case 'EVEN': return 'Even';
+                    case 'LOW': return '1-18';
+                    case 'HIGH': return '19-36';
+                    case 'DOZEN': return `${bet.target === 1 ? '1st' : bet.target === 2 ? '2nd': '3rd'} 12`;
+                    case 'COLUMN': return `Column ${bet.target}`;
+                    default: return bet.betType;
+                }
+            }
+            function showBetError(msg){
+                const el = document.getElementById('totalBetDisplay');
+                const orig = el.textContent;
+                el.textContent = msg;
+                el.style.color = '#e05c5c';
+                setTimeout(() => {
+                    el.textContent = orig;
+                    el.style.color = '';
+                }, 1500);
+            }
+            //Clear Bets
+            function clearBets(){
+                placedBets = [];
+                document.querySelectorAll('.placed-chip').forEach(c => c.remove());
+                document.querySelectorAll('.has-bet').forEach(c => c.classList.remove('has-bet'));
+                updateBetDisplay();
+            }
+            //Spin
+            async function spin(){
+                if(isSpinning || placedBets.length === 0){
+                    return;
+                }
+                isSpinning = true;
+                const spinBtn = document.getElementById('spinBtn');
+                spinBtn.disabled = true;
+                spinBtn.textContent = 'Spinning...';
+                hideResult();
+                const resultNumberEl = document.getElementById('resultNumber');
+                document.getElementById('resultWrap').style.display = 'flex';
+                resultNumberEl.textContent = '?';
+                resultNumberEl.className = 'rt-result-number spinning';
+                const response = await apiRequest('/roulette/spin', 'POST', {
+                    bets: placedBets,
+                    americanWheel: isAmericanWheel,
+                    frenchWheel: isFrenchWheel
+                });
+                if(!response || !response.ok){
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.textContent = 'SPIN';
+                    return;
+                }
+                const data = await response.json();
+                let count = 0;
+                const maxNum = isAmericanWheel ? 38 : 37; // include 00 as 37 for american
+                const spinInterval = setInterval(() => {
+                    const rand = Math.floor(Math.random() * maxNum);
+                    resultNumberEl.textContent = rand;
+                    const isRed = RED_NUMBERS.has(rand);
+                    resultNumberEl.className = `rt-result-number spinning ${rand === 0 ? 'green' : isRed ? 'red':'black'}`;
+                    count++;
+                }, 80);
+                setTimeout(() => {
+                    clearInterval(spinInterval);
+                    showResult(data);
+                    const coins = parseInt(localStorage.getItem('coins') || '0');
+                    const newCoins = coins + data.coinChange;
+                    document.getElementById('topbarCoins').textContent = newCoins.toLocaleString();
+                    localStorage.setItem('coins', newCoins);
+                    isSpinning = false;
+                    spinBtn.textContent = 'SPIN';
+                    document.getElementById('newRoundBtn').style.display = 'inline-block';
+                    spinBtn.style.display = 'none';
+                }, 2000);
+            }
+            //Show Result
+            function showResult(data){
+                const resultNumberEl = document.getElementById('resultNumber');
+                const resultInfoEl = document.getElementById('resultInfo');
+                const resultMsgEl = document.getElementById('resultMessage');
+                const coinChangeEl = document.getElementById('coinChange');
+                resultNumberEl.textContent = data.displayNumber;
+                resultNumberEl.className = `rt-result-number ${data.resultColor === 'RED' ? 'red' : data.resultColor === 'BLACK' ? 'black': 'green'}`;
+                const props = [];
+                if(data.resultNumber > 0){
+                    props.push(data.resultColor);
+                    props.push(data.isOdd ? 'Odd' : 'Even');
+                    props.push(data.isLow ? 'Low(1-18)' : 'High(19-36)');
+                }
+                else{
+                    props.push('Green');
+                }
+                resultInfoEl.textContent = props.join(' · ');
+                document.querySelectorAll('.rt-number.winning').forEach(c => c.classList.remove('winning'));
+                const winCell = document.querySelector(`[data-number="${data.resultNumber}"]`);
+                if(winCell){
+                    winCell.classList.add('winning');
+                }
+                if(data.won){
+                    resultMsgEl.textContent = `You Win! + ${data.totalWinnings} coins`;
+                    resultMsgEl.className = 'rt-result-message win';
+                }
+                else{
+                    resultMsgEl.textContent = `No win this time`;
+                    resultMsgEl.className = 'rt-result-message lose';
+                }
+                if(data.isPartageTriggered){
+                    resultMsgEl.textContent = 'La Partage - Zero! ' + 'Half your outside bet returned.'
+                    resultMsgEl.className = 'rt-result-message lapartage';
+                }
+                if(data.coinChange > 0){
+                    coinChangeEl.textContent = `+${data.coinChange} coins`;
+                    coinChangeEl.className = 'rt-coin-change positive';
+                }
+                else if(data.coinChange < 0){
+                    coinChangeEl.textContent = `${data.coinChange} coins`;
+                    coinChangeEl.className = 'rt-coin-change negative';
+                }
+                else{
+                    coinChangeEl.textContent = 'Break Even';
+                    coinChangeEl.className = 'rt-coin-change neutral';
+                }
+            }
+            function hideResult(){
+                document.getElementById('resultWrap').style.display = 'none';
+            }
+            //New Round
+            function newRound(){
+                clearBets();
+                hideResult();
+                document.querySelectorAll('.rt-number.winning').forEach(c => c.classList.remove('winning'));
+                document.getElementById('newRoundBtn').style.display = 'none';
+                document.getElementById('spinBtn').style.display = 'inline-block';
+                document.getElementById('spinBtn').disabled = true;
+            }
+            //Tutorial
+            function showHtp(){
+                document.getElementById('htpModel').style.display = 'flex';
+                htpNext(1);
+            }
+            function closeHtp(){
+                document.getElementById('htpModel').style.display = 'none';
+                localStorage.setItem('hasSeenRouletteTutorial', 'true');
+            }
+            function htpNext(step){
+                for(let i = 1; i<= 3; i++){
+                    const el = document.getElementById(`htpStep${i}`);
+                    if(el){
+                        el.style.display = i === step ? 'block' : 'none';
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

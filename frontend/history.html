@@ -66,19 +66,15 @@
                 <div class="right-panel-title">Overall</div>
 
                 <div class="stat-item">
-                    <span class="stat-name">🪙 Coins Won</span>
+                    <span class="stat-name">🪙 Total Won</span>
                     <span class="stat-val positive" id="statWon">—</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-name">🎰 Coins Bet</span>
-                    <span class="stat-val negative" id="statBet">—</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-name">❌ Coins Lost</span>
+                    <span class="stat-name">❌ Total Lost</span>
                     <span class="stat-val negative" id="statLost">—</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-name">🔄 Coins Refilled</span>
+                    <span class="stat-name">🔄 Total Refilled</span>
                     <span class="stat-val gold" id="statRefilled">—</span>
                 </div>
                 <div class="stat-item">
@@ -105,7 +101,8 @@
                     <select class="filter-select" id="filterType" onchange="applyFilters()">
                         <option value="all">All Transactions</option>
                         <option value="WIN">Wins Only</option>
-                        <option value="BET">Bets Only</option>
+                        <option value="LOST">Losses Only</option>
+                        <option value="PUSH">Pushes Only</option>
                         <option value="REFILL">Refills Only</option>
                     </select>
                 </div>
@@ -226,7 +223,7 @@
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             };
-            const options = { method, headers };
+            const options = {method, headers };
 
             if (body) {
                 options.body = JSON.stringify(body);
@@ -290,14 +287,19 @@
             allTransactions = data.transactions;
 
             document.getElementById('statWon').textContent = `+${data.totalWon}`;
-            document.getElementById('statBet').textContent = `${data.totalBet}`;
             document.getElementById('statLost').textContent = `-${data.totalLost}`;
             document.getElementById('statRefilled').textContent = `${data.totalRefilled}`;
 
-            const net = data.netResult;
-            document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
-
-            if (!data.transactions || data.transactions.length === 0) {
+            const netEl = document.getElementById('statNet');
+            netEl.textContent = data.netCoins >= 0 ? `+${data.netCoins}` : `${data.netCoins}`;
+            netEl.className = `stat-val ${data.netCoins >= 0 ? 'positive' : 'negative'}`;
+            
+            renderTransactions(allTransactions);
+        }
+        function renderTransactions(transactions){
+            const listEl = document.getElementById('transactionList');
+            listEl.innerHTML = '';
+            if (!transactions || transactions.length === 0) {
                 listEl.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">🎰</div>
@@ -309,21 +311,41 @@
                 return;
             }
 
-            listEl.innerHTML = '';
-            data.transactions.forEach(t => {
+            transactions.forEach(t => {
                 const item = document.createElement('div');
-                const icon = t.type === 'WIN' ? '✅' : t.type === 'BET' ? '🎰' : '🔄';
-                const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
+                item.className = 'transaction-item';
                 const date = new Date(t.createdAt);
-                const dateStr = `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                const dateStr = date.toLocaleDateString() + ' · ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const gameName = t.game ? t.game.charAt(0).toUpperCase() + t.game.slice(1) : 'System';
+                let detailLine = '';
+                let amountLine = '';
 
+                if (t.outcome === 'REFILL') {
+                    detailLine = `System · ${dateStr}`;
+                    amountLine = `
+                        <span class="tx-refill"> +${t.winAmount} coins refilled </span>`;
+                } 
+                else if (t.outcome === 'WIN') {
+                    detailLine = `${gameName} · ${dateStr} · ` + `Bet: ${t.betAmount}`;
+                    amountLine = `<span class="tx-win"> +${t.netChange} coins </span>`;
+
+                } 
+                else if (t.outcome === 'PUSH') {
+                    detailLine = `${gameName} · ${dateStr} · ` + `Bet: ${t.betAmount}`;
+                    amountLine = `<span class="tx-push"> +${t.betAmount} returned </span>`;
+
+                } 
+                else {
+                    detailLine = `${gameName} · ${dateStr} · ` + `Bet: ${t.betAmount}`;
+                    amountLine = `<span class="tx-loss"> -${t.betAmount} coins </span>`;
+                }
                 item.innerHTML = `
-                    <span>${icon}</span>
-                    <div>
-                        <div>${t.type}</div>
-                        <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
+                    <div class="tx-icon">${t.icon}</div>
+                    <div class="tx-info">
+                        <div class="tx-outcome">${t.outcome}</div>
+                        <div class="tx-detail">${detailLine}</div>
                     </div>
-                    <div>${amountText} coins</div>
+                    <div class="tx-amount">${amountLine}</div>
                 `;
 
                 listEl.appendChild(item);
@@ -453,54 +475,32 @@
             const typeFilter = document.getElementById('filterType').value;
             let filtered = allTransactions;
 
-            if (typeFilter !== 'all') {
-                filtered = filtered.filter(t => t.type === typeFilter);
-            }
+           if(typeFilter === 'WIN'){
+            filtered = filtered.filter(t => t.outcome === 'WIN');
+           }
+           else if(typeFilter === 'LOST' || typeFilter === 'BET'){
+            filtered = filtered.filter(t => t.outcome === 'LOST');
+           }
+           else if(typeFilter === 'PUSH'){
+            filtered = filtered.filter(t => t.outcome === 'PUSH');
+           }
+           else if(typeFilter === 'REFILL'){
+            filtered = filtered.filter(t => t.outcome === 'REFILL');
+           }
 
-            const totalWon = filtered.filter(t => t.type === 'WIN').reduce((sum, t) => sum + t.amount, 0);
-            const totalBet = filtered.filter(t => t.type === 'BET').reduce((sum, t) => sum + Math.abs(t.amount), 0);
-            const totalLost = Math.max(0, totalBet - totalWon);
-            const totalRefilled = filtered.filter(t => t.type === 'REFILL').reduce((sum, t) => sum + t.amount, 0);
-            const net = totalWon - totalBet;
+            const totalWon = filtered.filter(t => t.outcome === 'WIN').reduce((sum, t) => sum + t.netChange, 0);
+            const totalLost = filtered.filter(t => t.outcome === 'LOST').reduce((sum,t) => sum + t.betAmount, 0);
+            const totalRefilled = filtered.filter(t => t.outcome === 'REFILL').reduce((sum, t) => sum + t.winAmount, 0);
+            const net = totalWon - totalLost + totalRefilled;
 
             document.getElementById('statWon').textContent = `+${totalWon}`;
-            document.getElementById('statBet').textContent = `${totalBet}`;
             document.getElementById('statLost').textContent = `${totalLost}`;
             document.getElementById('statRefilled').textContent = `+${totalRefilled}`;
-            document.getElementById('statNet').textContent = net >= 0 ? `+${net}` : `${net}`;
 
-            const listEl = document.getElementById('transactionList');
-            listEl.innerHTML = '';
-
-            if (filtered.length === 0) {
-                listEl.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🎰</div>
-                        <div class="empty-title">No transactions found</div>
-                        <div class="empty-message">No transactions match the selected filter.</div>
-                        <button class="empty-btn" onclick="window.location.href='welcome.html'">Go to Games</button>
-                    </div>
-                `;
-                return;
-            }
-
-            filtered.forEach(t => {
-                const item = document.createElement('div');
-                const icon = t.type === 'WIN' ? '✅' : t.type === 'BET' ? '🎰' : '🔄';
-                const amountText = t.amount >= 0 ? `+${t.amount}` : `${t.amount}`;
-                const date = new Date(t.createdAt);
-                const dateStr = `${date.toLocaleDateString()} · ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-
-                item.innerHTML = `
-                    <span>${icon}</span>
-                    <div>
-                        <div>${t.type}</div>
-                        <div>${t.game ? t.game : 'System'} · ${dateStr}</div>
-                    </div>
-                    <div>${amountText} coins</div>
-                `;
-                listEl.appendChild(item);
-            });
+            const netEl = document.getElementById('statNet');
+            netEl.textContent = net >= 0 ? `+${net}` : `${net}`;
+            netEl.className = `stat-val ${net >= 0 ? 'positive' : 'negative'}`;
+            renderTransactions(filtered);
         }
 
         applyTheme();

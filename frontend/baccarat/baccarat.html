@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Hub — Baccarat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" href="../css/baccarat.css">
+</head>
+<body>
+    <!--Top Bar-->
+    <div class="bac-topbar">
+        <button class="bac-back-btn" onclick="window.location.href='../welcome.html'">← Back</button>
+        <div class="bac-topbar-title">Baccarat</div>
+        <div class="bac-topbar-coins">🪙 <span id="topbarCoins">-</span></div>
+    </div>
+    <!--Main Table-->
+    <div class="bac-table-wrapper">
+        <div class="bac-table">
+            <!--Table title-->
+            <div class="bac-table-title">BACCARAT</div>
+            <!--Hands Area-->
+            <div class="bac-hands">
+                <!--Player Hand-->
+                <div class="bac-had-section">
+                    <div class="bac-hand-label">PLAYER</div>
+                    <div class="bac-cards" id="playerCards"></div>
+                    <div class="bac-score" id="playerScore">-</div>
+                    <div class="bac-natural" id="playerNatural" style="display:none">Natural!</div>
+                    <div class="bac-pair-badge" id="playerPairBadge" style="display:none">Pair</div>
+                </div>
+                <!--VS divider-->
+                <div class="bac-vs">VS</div>
+                <!--Banker Hand-->
+                <div class="bac-hand-section">
+                    <div class="bac-hand-label">BANKER</div>
+                    <div class="bac-cards" id="bankerCards"></div>
+                    <div class="bac-score" id="bankerScore">-</div>
+                    <div class="bac-natural" id="bankerNatural" style="display:none">NATURAL!</div>
+                    <div class="bac-pair-badge" id="bankerPairBadge" style="display:none">Pair</div>
+                </div>
+            </div>
+            <!--Result Banner-->
+            <div class="bac-result-banner" id="resultBanner" style="display:none"></div>
+            <!--Betting Area-->
+            <div class="bac-bettings-area">
+                <!--Main Bets-->
+                <div class="bac-main-bets">
+                    <div class="bac-bet-spot" id="spotPLAYER" onclick="toggleBet('PLAYER')">
+                        <div class="bac-bet-name">PLAYER</div>
+                        <div class="bac-bet-odds">1:1</div>
+                        <div class="bac-chip-display" id="chipPLAYER"></div>
+                        <div class="bac-bet-amount" id="amountPLAYER"></div>
+                    </div>
+                    <div class="bac-bet-spot bac-tie-spot" id="spotTIE" onclick="toggleBet('TIE')">
+                        <div class="bac-bet-name">TIE</div>
+                        <div class="bac-bet-odds">8:1</div>
+                        <div class="bac-chip-display" id="chipTIE"></div>
+                        <div class="bac-bet-amount" id="amountTIE"></div>
+                    </div>
+                    <div class="bac-bet-spot" id="spotBANKER" onclick="toggleBet('BANKER')">
+                        <div class="bac-bet-name">BANKER</div>
+                        <div class="bac-bet-odds">0.95:1</div>
+                        <div class="bac-chip-display" id="chipBANKER"></div>
+                        <div class="bac-bet-amount" id="amountBANKER"></div>
+                    </div>
+                </div>
+                <!--Side bets-->
+                <div class="bac-side-bets">
+                    <div class="bac-side-label">Side Bets</div>
+                    <div class="bac-side-row">
+                        <div class="bac-bet-spot bac-side-spot" id="spotPLAYER_PAIR" onclick="toggleBet('PLAYER_PAIR')">
+                            <div class="bac-bet-name">Player Pair</div>
+                            <div class="bac-bet-odds">11:1</div>
+                            <div class="bac-chip-display" id="chipPLAYER_PAIR"></div>
+                            <div class="bac-bet-amount" id="amountPLAYER_PAIR"></div>
+                        </div>
+                        <div class="bac-bet-spot bac-side-spot" id="spotBANKER_PAIR" onclick="toggleBet('BANKER_PAIR')">
+                            <div class="bac-bet-name">Banker Pair</div>
+                            <div class="bac-bet-odds">11:1</div>
+                            <div class="bac-chip-display" id="chipBANKER_PAIR"></div>
+                            <div class="bac-bet-amount" id="amountBANKER_PAIR"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Controls-->
+    <div class="bac-controls">
+        <!--Chip Selector-->
+        <div class="bac-chip-section">
+            <div class="bac-chip-label">Chip</div>
+            <div class="bac-chips">
+                <div class="bac-chip chip-white active" data-value="10" onclick="selectChip(10)">10</div>
+                <div class="bac-chip chip-red" data-value="25" onclick="selectChip(25)">25</div>
+                <div class="bac-chip chip-green" data-value="50" onclick="selectChip(50)">50</div>
+                <div class="bac-chip chip-black" data-value="75" onclick="selectChip(75)">75</div>
+            </div>
+        </div>
+        <!--Total bet-->
+        <div class="bac-total-section">
+            <div class="bac-total-label">Total Bet</div>
+            <div class="bac-total-amount" id="totalBetDisplay">0</div>
+        </div>
+        <!--Result-->
+        <div class="bac-coin-change" id="coinChangeDisplay"></div>
+        <!--Buttons-->
+        <div class="bac-action-buttons">
+            <button class="bac-btn bac-btn-secondary" onclick="clearBets()" id="clearbtn">Clear</button>
+            <button class="bac-btn bac-btn-deal" onclick="deal()" id="dealBtn" disabled>Deal</button>
+            <button class="bac-btn bac-btn-gold" onclick="newRound()" id="newRoundBtn" style="display:none">New Round</button>
+        </div>
+    </div>
+    <!--How to play model-->
+    <div id="htpModel" style="display:none">
+        <div class="htp-overlay"></div>
+        <div class="htp-box">
+            <button class="htp-close" onclick="closeHtp()">✕</button>
+            <div class="htp-step" id="htpStep1">
+                <div class="htp-title">Welcome to Baccarat!</div>
+                <div class="htp-body">Baccarat is one of the simplest casino games. Two hands are dealt - Player and Banker. Bet on which one will score closer to 9 or bet on a Tie!</div>
+                <div class="htp-nav">
+                    <button class="htp-btn htp-btn-gold" onclick="htpNext(2)">Next →</button>
+                </div>
+            </div>
+            <div class="htp-step" id="htpStep2" style="display:none">
+                <div class="htp-title">Card Values</div>
+                <div class="htp-body">Ace = 1, Cards 2-9 = face value. 10, J, Q, K = 0. Add the cards and drop the ten digits. For example 7 + 8 = 15 becomes 5. Highest score of 9 wins!</div>
+                <div class="htp-nav">
+                    <button class="htp-btn htp-btn-secondary" onclick="htpNext(1)">← Back</button>
+                    <button class="htp-btn htp-btn-gold" onclick="htpNext(3)">Next →</button>
+                </div>
+            </div>
+            <div class="htp-step" id="htpStep3" style="display:none">
+                <div class="htp-title">Payouts</div>
+                <div class="htp-body">Player Wins pays 1:1
+                                      Banker wins pays 0.95:1 (5% commission).
+                                      Tie pays 8:1.
+                                      Player or Banker Pair pays 11:1
+                                      A Natural (8 or 9) ends the round early!
+                </div>
+                <div class="htp-nav">
+                    <button class="htp-btn-secondary" onclick="htpNext(2)">← Back</button>
+                    <button class="htp-btn htp-btn-gold" onclick="closeHtp()">Let's Play!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Info Button-->
+    <button class="info-btn" onclick="showHtp()">?</button>
+    
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        //Game state
+        let selectedChipValue = 10;
+        let placedBets = {};
+        let isDealing = false;
+
+        //Init
+        window.onload = async () => {
+            if(!localStorage.getItem('token')){
+                window.location.href = '../login.html';
+                return;
+            }
+            applyTheme();
+                await loadCoins();
+            if(!localStorage.getItem('hasSeenBaccaratTutorial')){
+                showHtp();
+            }
+        };
+        //Theme
+        function applyTheme(){
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.remove('dark-mode', 'light-mode');
+            if(savedTheme === 'dark'){
+                document.body.classList.add('dark-mode');
+            }
+        }
+        //API Request
+        async function apiRequest(endpoint, method='GET', body= null){
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type' : 'application/json',
+                'Authorization' : `Bearer ${token}`
+            };
+            const options = {method, headers};
+            if(body){
+                options.body = JSON.stringify(body);
+            }
+            const response = await fetch(`${API_BASE}${endpoint}`, options);
+            if(response.status === 401 || response.status === 403){
+                localStorage.clear();
+                window.location.href = '../login.html';
+                return null;
+            }
+            return response;
+        }
+        //Chip Selector
+        function selectChip(value){
+            selectedChipValue = value;
+            document.querySelectorAll('.bac-chip').forEach(c => {c.classList.toggle('active', parseInt(c.dataset.value) === value);});
+        }
+        //Load Coins
+        async function loadCoins(){
+            const response = await apiRequest('/user/me');
+            if(!response){
+                return;
+            }
+            const data = await response.json();
+            document.getElementById('topbarCoins').textContent = data.coins.toLocaleString();
+            localStorage.setItem('coins', data.coins);
+        }
+        //Toggle Bet
+        function toggleBet(betType){
+            if(isDealing){
+                return;
+            }
+            const coins = parseInt(localStorage.getItem('coins') || '0');
+            const currentTotal = Object.values(placedBets).reduce((sum,v) => sum + v, 0);
+            if(currentTotal + selectedChipValue > coins){
+                showError('Not enough coins!');
+                return;
+            }
+            placedBets[betType] = (placedBets[betType] || 0) + selectedChipValue;
+            updateBetDisplay();
+        }
+        //Update Bet Display
+        function updateBetDisplay(){
+            const betTypes = ['PLAYER', 'BANKER', 'TIE', 'PLAYER_PAIR', 'BANKER_PAIR'];
+            let total = 0;
+            betTypes.forEach(type => {
+                const chipEl = document.getElementById(`chip${type}`);
+                const amountEl = document.getElementById(`amount${type}`);
+                const spotEl = document.getElementById(`spot${type}`);
+                if(placedBets[type]){
+                    chipEl.innerHTML = `
+                    <div class = "placed-chip">
+                        ${placedBets[type]}
+                    </div>`;
+                    amountEl.textContent = `${placedBets[type]}`;
+                    spotEl.classList.add('has-bet');
+                    total += placedBets[type];
+                }
+                else{
+                    chipEl.innerHTML = '';
+                    amountEl.textContent = '';
+                    spotEl.classList.remove('has-bet');
+                }
+            });
+            document.getElementById('totalBetDisplay').textContent = total;
+            document.getElementById('dealBtn').disabled = total < 10;
+        }
+        function showError(msg){
+            const el = document.getElementById('totalBetDisplay');
+            const orig = el.textContent;
+            el.textContent = msg;
+            el.style.color = '#e05c5c';
+            setTimeout(() => {
+                el.textContent = orig;
+                el.style.color = '';
+            }, 1500);
+        }
+        //Clear bets
+        function clearBets(){
+            placedBets = {};
+            updateBetDisplay();
+        }
+        //Deal 
+        async function deal (){
+            if(isDealing || Object.keys(placedBets).length === 0){
+                return;
+            }
+            isDealing = true;
+            document.getElementById('dealBtn').disabled = true;
+            document.getElementById('clearbtn').disabled = true;
+            clearHands();
+            hideResult();
+            const response = await apiRequest('/baccarat/deal', 'POST', {bets: placedBets});
+            if(!response || !response.ok){
+                isDealing = false;
+                document.getElementById('dealBtn').disabled = false;
+                document.getElementById('clearbtn').disabled = false;
+                return;
+            }
+            const data = await response.json();
+            await animateDeal(data);
+            showResult(data);
+            const coins = parseInt(localStorage.getItem('coins') || '0');
+            const newCoins = coins + data.coinChange;
+            document.getElementById('topbarCoins').textContent = newCoins.toLocaleString();
+            localStorage.setItem('coins', newCoins);
+            isDealing = false;
+            document.getElementById('dealBtn').style.display = 'none';
+            document.getElementById('clearbtn').style.display = 'none';
+            document.getElementById('newRoundBtn').style.display = 'inline-block';
+        }
+        //Animate Deal
+        async function animateDeal(data){
+            const speed = getAnimationMultiplier();
+            const delay = ms => new Promise(r => setTimeout(r, ms));
+            const playerCards = data.playerHand;
+            const bankerCards = data.bankerHand;
+            await addCard('player', playerCards[0], false);
+            await delay (400 * speed);
+            await addCard('banker', bankerCards[0], false);
+            await delay(400 * speed);
+            await addCard('player', playerCards[1], false);
+            await delay(400 * speed);
+            await addCard('banker', bankerCards[1], false);
+            showScore('player', calculateDisplayScore(playerCards.slice(0,2)));
+            showScore('banker', calculateDisplayScore(bankerCards.slice(0,2)));
+            await delay(600 * speed);
+            if(playerCards.length > 2){
+                await addCard('player', playerCards[2], true);
+                await delay(400 * speed);
+                showScore('player', calculateDisplayScore(playerCards));
+                await delay(400 * speed);
+            }
+            if(bankerCards.length > 2){
+                await addCard('banker', bankerCards[2], true);
+                await delay(400 * speed);
+                showScore('banker', calculateDisplayScore(bankerCards));
+                await delay(400 * speed);
+            }
+        }
+        async function addCard(hand, cardData, isThird){
+            const container = document.getElementById(`${hand}Cards`);
+            const cardEl = document.createElement('div');
+            cardEl.className = `bac-card ${
+            cardData.isRed ? 'bac-card-red' : 'bac-card-black'}
+            ${isThird ? 'bac-card-third' : ''} card-deal-anim`;
+            cardEl.innerHTML = `<div class=bac-card-value">
+                ${cardData.displayValue} </div>
+                <div class="bac-card-suit">
+                    ${cardData.suit}
+                </div>`;
+            container.appendChild(cardEl);
+            await new Promise(r => setTimeout(r, 50));
+            cardEl.classList.add('dealt');
+        }
+        //Calculate score for display purpose
+        function calculateDisplayScore(cards){
+            let total = 0;
+            const bacValues = {'A':1, '2': 2, '3':3, '4':4, '5':5, '6':6, '7':7, '8': 8, '9': 9, '10': 0, 'J': 0, 'Q': 0, 'K':0 };
+            cards.forEach(c => {
+                total += bacValues[c.displayValue] || 0;
+            });
+            return total % 10;
+        }
+        function showScore(hand, score){
+            document.getElementById(`${hand}Score`).textContent = score;
+        }
+        //Show Result
+        function showResult(data){
+            if(data.playerNatural){
+                document.getElementById('playerNatural').style.display = 'block';
+            }
+            if(data.bankerNatural){
+                document.getElementById('bankerNatural').style.display = 'block';
+            }
+            if(data.playerPair){
+                document.getElementById('playerPairBadge').style.display = 'block';
+            }
+            if(data.bankerPair){
+                document.getElementById('bankerPairBadge').style.display = 'block';
+            }
+            document.getElementById('playerScore').textContent = data.playerScore;
+            document.getElementById('bankerScore').textContent = data.bankerScore;
+
+            if(data.outcome === 'PLAYER_WIN'){
+                document.getElementById('playerScore').classList.add('score-winner');
+            }
+            else if(data.outcome === 'BANKER_WIN'){
+                document.getElementById('bankerScore').classList.add('score-winner');
+            }
+            const banner = document.getElementById('resultBanner');
+            banner.style.display = 'block';
+            if(data.outcome === 'TIE'){
+                banner.textContent = 'TIE';
+                banner.className = 'bac-result-banner player-tie';
+            }
+            else if(data.outcome === 'PLAYER_WIN'){
+                banner.textContent = 'PLAYER WINS';
+                banner.className = 'bac-result-banner player-win';
+            }
+            else{
+                banner.textContent = 'BANKER WINS';
+                banner.className = 'bac-result-banner banker-win';
+            }
+            const changeEl = document.getElementById('coinChangeDisplay');
+            if(data.coinChange > 0){
+                changeEl.textContent = `+${data.coinChange} coins`;
+                changeEl.className = 'bac-coin-change positive';
+            }
+            else if(data.coinChange < 0){
+                changeEl.textContent = `${data.coinChange} coins`;
+                changeEl.className = 'bac-coin-change negative';
+            }
+            else{
+                changeEl.textContent = 'Break even';
+                changeEl.className = 'bac-coin-change neutral';
+            }
+        }
+        //CLear Hands
+        function clearHands(){
+            document.getElementById('playerCards').innerHTML = '';
+            document.getElementById('bankerCards').innerHTML = '';
+            document.getElementById('playerScore').innerHTML = '-';
+            document.getElementById('bankerScore').innerHTML = '-';
+            document.getElementById('playerScore').classList.remove('score-winner');
+            document.getElementById('bankerScore').classList.remove('score-winner');
+            document.getElementById('playerNatural').style.display = 'none';
+            document.getElementById('bankerNatural').style.display = 'none';
+            document.getElementById('playerPairBadge').style.display = 'none';
+            document.getElementById('bankerPairBadge').style.display = 'none';
+        }
+        function hideResult(){
+            document.getElementById('resultBanner').style.display = 'none';
+            document.getElementById('coinChangeDisplay').textContent = '';
+            document.getElementById('coinChangeDisplay').className = 'bac-coin-change';
+        }
+        //New Round
+        function newRound(){
+            clearBets();
+            clearHands();
+            hideResult();
+
+            document.getElementById('newRoundBtn').style.display = 'none';
+            document.getElementById('dealBtn').style.display = 'inline-block';
+            document.getElementById('clearbtn').style.display = 'inline-block';
+            document.getElementById('dealBtn').disabled = true;
+            document.getElementById('clearbtn').disabled = false;
+        }
+        //Animation speed
+        function getAnimationMultiplier(){
+            const speed = localStorage.getItem('animationSpeed') || 'normal';
+            switch(speed){
+                case 'fast': return 0.4;
+                case 'slow': return 1.8;
+                default: return 1.0;
+            }
+        }
+        //Tutorial 
+        function showHtp(){
+            document.getElementById('htpModel').style.display = 'flex';
+            htpNext(1);
+        }
+        //clase tutorial
+        function closeHtp(){
+            document.getElementById('htpModel').style.display = 'none';
+            localStorage.setItem('hasSeenBaccaratTutorial', 'true');
+        }
+        function htpNext(step){
+            for(let i = 1; i <= 3; i++){
+                const el = document.getElementById(`htpStep${i}`);
+                if(el){
+                    el.style.display = i === step ? 'block' : 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

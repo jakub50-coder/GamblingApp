@@ -703,9 +703,10 @@ body.dark-mode .bj-help-row span:last-child{
 }
 .bj-split-hands{
     display: flex;
-    gap: 20px;
+    gap: 12px;
     justify-content: center;
     align-items: flex-start;
+    max-width: clamp(280px, 55vw, 480px);
 }
 .bj-split-hand{
     display: flex;
@@ -733,6 +734,12 @@ body.dark-mode .bj-help-row span:last-child{
     color: var(--gold);
     margin-top: 8px;
     font-weight: 600;
+}
+.bj-split-hand .bj-cards::-wewbkit-scrollbar{
+    display: none;
+}
+.bj-seat-player .bj-cards::-webkit-scrollbar{
+    display:none;
 }
 /*Responsive*/
 @media (max-width: 600px){

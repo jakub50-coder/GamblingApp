@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CoinTransactionRepository extends JpaRepository<CoinTransaction, Long> {
+    List<CoinTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
+
     List<CoinTransaction> findByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(
         Long userId, LocalDateTime after
     );

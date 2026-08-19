@@ -3,6 +3,7 @@ POST http://localhost:8080/api/auth/signup
 Content-Type: application/json
 
 {
+    "email": "testuser50@gmail.com",
     "username": "testuser",
     "password": "password123"
 }
@@ -18,13 +19,12 @@ Content-Type: application/json
 
 ### Get current user profile
 GET http://localhost:8080/api/user/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDYwNDM4NiwiZXhwIjoxNzgwNjkwNzg2fQ.e8dsva47p-YhDzZGfglyuBqomrr-JZKzwVHvRLBvP2U
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDg0MjU2NSwiZXhwIjoxNzg0OTI4OTY1fQ.FKCEqcTsEMCNAy7fOHqPl6yy66x4rfMgaIxmwMvAxAo
 
-### Get transaction history
 GET http://localhost:8080/api/user/transactions
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3OTMxMTI4MywiZXhwIjoxNzc5Mzk3NjgzfQ.R6hk97IwFleilbH9jzy0EhwoTLzfM_TDzRTci2l23IM
 ### Mark tutorial as seen
-PATCH http://localhost:8080/api/user/tutorial/blackjack
+PATCH http://localhost:8080/api/user/tutorial/blackjack 
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc3OTMxMTI4MywiZXhwIjoxNzc5Mzk3NjgzfQ.R6hk97IwFleilbH9jzy0EhwoTLzfM_TDzRTci2l23IM
 
 ### Get game state
@@ -32,7 +32,7 @@ GET http://localhost:8080/api/blackjack/state
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
 ### Start a round with bet of 10
 POST http://localhost:8080/api/blackjack/start
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDg0MjU2NSwiZXhwIjoxNzg0OTI4OTY1fQ.FKCEqcTsEMCNAy7fOHqPl6yy66x4rfMgaIxmwMvAxAo
 Content-Type: application/json
 
 {
@@ -41,35 +41,108 @@ Content-Type: application/json
 
 ### Hit
 POST http://localhost:8080/api/blackjack/hit
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDc1ODYwOCwiZXhwIjoxNzg0ODQ1MDA4fQ.PWprjtNfzF2ovmpOKI1CD45vrmGAtfKWFFO--Qervag
 ### Stand
 POST http://localhost:8080/api/blackjack/stand
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
 ### New round
 POST http://localhost:8080/api/blackjack/new-round
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDc1Nzc2MiwiZXhwIjoxNzg0ODQ0MTYyfQ.C7WX0ulORajSOlPLbbQ0uesmspH1MtLYeJY3lLD063M
 ### Forfeit
 POST http://localhost:8080/api/blackjack/forfeit
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4MDcwMDEzNSwiZXhwIjoxNzgwNzg2NTM1fQ.5d4vtqnSRj6GZT9JUIKvDL5sIzpk7qyBKhDQHkbBXBw
 
 ### Test surrender
 POST http://localhost:8080/api/blackjack/surrender
-Authorization: Bearer YOUR_TOKEN_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDc1ODIwMiwiZXhwIjoxNzg0ODQ0NjAyfQ.GwGlTWAaQx-COv6DYediGZ3oejCRxz8Pwj06iKOsiU8
 
 ### Test double down
 POST http://localhost:8080/api/blackjack/double-down
-Authorization: Bearer YOUR_TOKEN_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDc1ODIwMiwiZXhwIjoxNzg0ODQ0NjAyfQ.GwGlTWAaQx-COv6DYediGZ3oejCRxz8Pwj06iKOsiU8
 
 ### Test split
 POST http://localhost:8080/api/blackjack/split
-Authorization: Bearer YOUR_TOKEN_HERE
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDg0MjU2NSwiZXhwIjoxNzg0OTI4OTY1fQ.FKCEqcTsEMCNAy7fOHqPl6yy66x4rfMgaIxmwMvAxAo
 ### Test hit split
 POST http://localhost:8080/api/blackjack/hit-split
-Authorization: Bearer YOUR_TOKEN_HERE
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDg0MjU2NSwiZXhwIjoxNzg0OTI4OTY1fQ.FKCEqcTsEMCNAy7fOHqPl6yy66x4rfMgaIxmwMvAxAo
 ### Test stand split
 POST http://localhost:8080/api/blackjack/stand-split
-Authorization: Bearer YOUR_TOKEN_HERE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NDg0MjU2NSwiZXhwIjoxNzg0OTI4OTY1fQ.FKCEqcTsEMCNAy7fOHqPl6yy66x4rfMgaIxmwMvAxAo
+
+POST http://localhost:8080/api/auth/forgot-password
+Content-Type: application/json
+
+{
+    "email": "gaminghub271@gmail.com"
+}
+
+### Test slot spin
+POST http://localhost:8080/api/slots/spin
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NTg3OTE1MCwiZXhwIjoxNzg1OTY1NTUwfQ.hgOXfqnEjT8lhGIMmiZj7N8VLjMjfRhw5lsfU7JhmYA
+Content-Type: application/json
+
+{
+    "betAmount": 10
+}
+
+###
+### Get payout table
+GET http://localhost:8080/api/slots/payouts
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NTE4OTczNCwiZXhwIjoxNzg1Mjc2MTM0fQ.f06l-2q-rmbD9v3nDKO0dtOKZxByG_ilI4eW6vWnX0A
+
+### Test European roulette spin
+POST http://localhost:8080/api/roulette/spin
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NTg3OTE1MCwiZXhwIjoxNzg1OTY1NTUwfQ.hgOXfqnEjT8lhGIMmiZj7N8VLjMjfRhw5lsfU7JhmYA
+Content-Type: application/json
+
+{
+    "americanWheel": false,
+    "bets": [
+        { "betType": "RED", "amount": 10 },
+        { "betType": "STRAIGHT", "amount": 10, "target": 17 },
+        { "betType": "DOZEN", "amount": 10, "target": 1 }
+    ]
+}
+
+###
+
+### Test American roulette spin
+POST http://localhost:8080/api/roulette/spin
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4NTg3OTE1MCwiZXhwIjoxNzg1OTY1NTUwfQ.hgOXfqnEjT8lhGIMmiZj7N8VLjMjfRhw5lsfU7JhmYA
+Content-Type: application/json
+
+{
+    "americanWheel": true,
+    "bets": [
+        { "betType": "BLACK", "amount": 10 },
+        { "betType": "ODD", "amount": 10 }
+    ]
+}
+
+### Test baccarat deal
+POST http://localhost:8080/api/baccarat/deal
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4Njc0MjAxNCwiZXhwIjoxNzg2ODI4NDE0fQ.g2CIbG7whiVRbaWqVk6gbKHSmBLq1G_F50W4LrHO5FE
+Content-Type: application/json
+
+{
+    "bets": {
+        "PLAYER": 10,
+        "TIE": 10,
+        "PLAYER_PAIR": 10
+    }
+}
+
+###
+
+### Test banker bet with pair side bets
+POST http://localhost:8080/api/baccarat/deal
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImlhdCI6MTc4Njc0MjAxNCwiZXhwIjoxNzg2ODI4NDE0fQ.g2CIbG7whiVRbaWqVk6gbKHSmBLq1G_F50W4LrHO5FE
+Content-Type: application/json
+
+{
+    "bets": {
+        "BANKER": 25,
+        "BANKER_PAIR": 10
+    }
+}

@@ -15,7 +15,9 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/user")
@@ -34,6 +36,10 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getMe(Authentication authentication) {
         String username = authentication.getName();
         Optional<User> userOpt = userService.getUser(username);
+        List<CoinTransaction> transactions = userService.getAllTransactionHistory(username);
+        long gamesPlayed = transactions.stream().filter(t -> t.getType().equals("BET")
+                            && t.getRoundId() != null && !t.getRoundId().endsWith("-split"))
+                            .map(CoinTransaction::getRoundId).distinct().count();
 
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -45,6 +51,7 @@ public class UserController {
         response.put("coins", user.getCoins());
         response.put("hasSeenBlackjackTutorial", user.isHasSeenBlackjackTutorial());
         response.put("createdAt", user.getCreatedAt().toString());
+        response.put("gamesPlayed", gamesPlayed);
 
         if (user.getCoins() < 100) {
             LocalDateTime refillAt = user.getLastRefillAt().plusHours(24);
@@ -66,39 +73,95 @@ public class UserController {
 
     @GetMapping("/transactions")
     public ResponseEntity<Map<String, Object>> getTransactions(Authentication authentication) {
-        String username = authentication.getName();
-        List<CoinTransaction> transactions = userService.getTransactionHistory(username);
-
-        int totalWon = transactions.stream().filter(t -> t.getType().equals("WIN")).mapToInt(CoinTransaction::getAmount).sum();
-        int totalBet = transactions.stream().filter(t -> t.getType().equals("BET")).mapToInt(t -> Math.abs(t.getAmount())).sum();
-        int totalRefilled = transactions.stream().filter(t -> t.getType().equals("REFILL")).mapToInt(CoinTransaction::getAmount).sum();
-
-        Map<String, Integer> betsByRound = new HashMap<>();
-        Map<String, Integer> winsByRound = new HashMap<>();
-
-        transactions.stream().filter(t -> t.getType().equals("BET") && t.getRoundId() != null).forEach(t -> betsByRound.put(t.getRoundId(), Math.abs(t.getAmount())));
-        transactions.stream().filter(t -> t.getType().equals("WIN") && t.getRoundId() != null).forEach(t -> winsByRound.put(t.getRoundId(), t.getAmount()));
-        int totalLost = betsByRound.entrySet().stream().filter(e -> !winsByRound.containsKey(e.getKey())).mapToInt(Map.Entry::getValue).sum();
-        int netResult = totalWon - totalLost;
-        List<Map<String, Object>> transactionList = transactions.stream().map(t ->{
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("id", t.getId());
-            entry.put("amount", t.getAmount());
-            entry.put("type", t.getType());
-            entry.put("game", t.getGame());
-            entry.put("roundId", t.getRoundId());
+       String username = authentication.getName();
+       List<CoinTransaction> transactions = userService.getTransactionHistory(username);
+       Map<String, Map<String, Object>> roundMap = new LinkedHashMap<>();
+       List<Map<String, Object>> standaloneList = new ArrayList<>();
+       for(CoinTransaction t: transactions){
+        if(t.getType().equals("REFILL")){
+            Map<String,Object> entry = new HashMap<>();
+            entry.put("outcome", "REFILL");
+            entry.put("game", "System");
             entry.put("createdAt", t.getCreatedAt().toString());
-            return entry;
-        })
-        .toList();
+            entry.put("betAmount", 0);
+            entry.put("winAmount", t.getAmount());
+            entry.put("netChange", t.getAmount());
+            entry.put("icon", "🔄");
+            standaloneList.add(entry);
+            continue;
+        }
+        if(t.getRoundId() != null && t.getRoundId().endsWith("-split")){
+            continue;
+        }
+        if(t.getRoundId() == null){
+            continue;
+        }
+        roundMap.computeIfAbsent(t.getRoundId(), k-> {
+            Map<String, Object> m =  new HashMap<>();
+            m.put("game", t.getGame() != null ? t.getGame() : "unknown");
+            m.put("createdAt", t.getCreatedAt().toString());
+            m.put("betAmount", 0);
+            m.put("winAmount", 0);
+            return m;
+        });
+        Map<String, Object> round = roundMap.get(t.getRoundId());
+        if(t.getType().equals("BET")){
+            round.put("betAmount",Math.abs(t.getAmount()));
+        }
+        else if(t.getType().equals("WIN")){
+            round.put("winAmount", t.getAmount());
+        }
+       }
+       List<Map<String, Object>> displayList = new ArrayList<>();
+       for(Map.Entry<String, Map<String, Object>> entry: roundMap.entrySet()){
+        Map<String, Object>  round = entry.getValue();
+        int bet = (int) round.get("betAmount");
+        int won = (int) round.get("winAmount");
+        int net = won - bet;
+        String outcome;
+        String icon;
+        if(won == 0){
+            outcome = "LOST";
+            icon = "❌";
+        }
+        else if(won == bet){
+            outcome = "PUSH";
+            icon = "⚖️";
+        }
+        else if(won > bet){
+            outcome = "WIN";
+            icon = "✅";
+        }
+        else{
+            outcome = "LOST";
+            icon = "❌";
+        }
+        round.put("outcome", outcome);
+        round.put("netChange", net);
+        round.put("icon", icon);
+        displayList.add(round);
+       }
+       displayList.addAll(standaloneList);
+       displayList.sort((a,b) -> {
+        String dateA = (String) a.get("createdAt");
+        String dateB = (String) b.get("createdAt");
+        return dateB.compareTo(dateA);
+       });
+       int totalWon = displayList.stream().filter(r -> r.get("outcome").equals("WIN"))
+                .mapToInt(r -> (int) r.get("netChange")).sum();
+        int totalLost = displayList.stream().filter(r -> r.get("outcome").equals("LOST"))
+                .mapToInt(r -> (int) r.get("betAmount")).sum();
+        int totalRefilled = standaloneList.stream()
+                .filter(r -> r.get("outcome").equals("REFILL"))
+                .mapToInt(r -> (int) r.get("winAmount")).sum();
+        int netCoins = totalWon - totalLost + totalRefilled;
 
         Map<String, Object> response = new HashMap<>();
-        response.put("transactions", transactions);
+        response.put("transactions", displayList);
         response.put("totalWon", totalWon);
-        response.put("totalBet", totalBet);
         response.put("totalLost", totalLost);
         response.put("totalRefilled", totalRefilled);
-        response.put("netResult", netResult);
+        response.put("netCoins", netCoins);
         return ResponseEntity.ok(response);
     }
     //Patch /api/user/tutorial/blackjack
