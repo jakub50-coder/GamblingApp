@@ -268,6 +268,7 @@ public class BlackjackService {
         else if (player.isHasBlackjack() && dealerBlackjack) {
             result = "PUSH";
             coinChange = 0;
+            userService.awardWinnings(username, bet, "blackjack", roundId);
         } 
         else if (player.isHasBlackjack()) {
             int winnings = bet + (int) Math.floor(bet * 1.5);
@@ -298,6 +299,7 @@ public class BlackjackService {
         else {
             result = "PUSH";
             coinChange = 0;
+            userService.awardWinnings(username, bet, "blackjack", roundId);
         }
 
         game.setRoundResult(result);
