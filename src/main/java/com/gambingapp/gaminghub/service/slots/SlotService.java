@@ -29,7 +29,7 @@ public class SlotService{
         7 //seven
     };
 
-    private static final int TOTAL_WEIGHT = 15 + 20 + 19 + 15 + 13 + 10 + 7; //this equals 100
+    private static final int TOTAL_WEIGHT = 15 + 20 + 19 + 15 + 13 + 11 + 7;
 
     public SlotService(UserService userService){
         this.userService = userService;
@@ -37,7 +37,9 @@ public class SlotService{
     //This method gets thet bets, spins the slot, calulates the winnings and return the result
     public SlotResult spin(String username, int betAmount){
         String roundId = UUID.randomUUID().toString();
-        userService.placeBet(username, betAmount, roundId, "slots");
+        if (!userService.placeBet(username, betAmount, roundId, "slots")) {
+            throw new IllegalStateException("Not enough coins to place that bet");
+        }
 
         SlotSymbol[][] reels = new SlotSymbol[3][3];
         for(int reel = 0; reel < 3; reel++){

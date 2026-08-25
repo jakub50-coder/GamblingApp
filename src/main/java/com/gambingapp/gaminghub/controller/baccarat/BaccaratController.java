@@ -30,12 +30,15 @@ public class BaccaratController{
             return ResponseEntity.badRequest().body(Map.of("error", "No bets placed."));
         }
         for(Map.Entry<String, Integer> entry : bets.entrySet()){
-            int amount = entry.getValue();
-            if(amount < 10){
-                return ResponseEntity.badRequest().body(Map.of("error", "Minimum bet is 10 coins"));
+            if (entry.getValue() == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Bet amount is required"));
             }
-            if(amount > 75){
-                return ResponseEntity.badRequest().body(Map.of("error", "Maximum bet is 75 coins"));
+            int amount = entry.getValue();
+            if(amount < 50){
+                return ResponseEntity.badRequest().body(Map.of("error", "Minimum bet is 50 coins"));
+            }
+            if(amount > 1000){
+                return ResponseEntity.badRequest().body(Map.of("error", "Maximum bet is 1000 coins"));
             }
         }
         Map<String, Object> result = baccaratService.deal(username, bets);

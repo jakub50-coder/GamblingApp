@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,12 +34,14 @@ public class AuthController {
     private final JwtService jwtService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordResetEmailService passwordResetEmailService;
+    private final String frontendUrl;
 
-    public AuthController(UserService userService, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, PasswordResetEmailService passwordResetEmailService) {
+    public AuthController(UserService userService, JwtService jwtService, PasswordResetTokenRepository passwordResetTokenRepository, PasswordResetEmailService passwordResetEmailService, @Value("${app.password-reset.frontend-url}") String frontendUrl) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordResetEmailService = passwordResetEmailService;
+        this.frontendUrl = frontendUrl;
     }
 
     // POST /api/auth/signup
@@ -59,9 +62,17 @@ public class AuthController {
             response.put("message", "Username is required");
             return ResponseEntity.badRequest().body(response);
         }
+        if (request.getUsername().length() > 50) {
+            response.put("message", "Username must be at most 50 characters long");
+            return ResponseEntity.badRequest().body(response);
+        }
 
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             response.put("message", "Password is required");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (request.getPassword().length() < 14) {
+            response.put("message", "Password must be at least 14 characters long");
             return ResponseEntity.badRequest().body(response);
         }
 
@@ -82,6 +93,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
         Map<String, Object> response = new HashMap<>();
+
+        if (request.getUsername() == null || request.getPassword() == null) {
+            response.put("message", "Username and password are required");
+            return ResponseEntity.badRequest().body(response);
+        }
 
         Optional<User> userOpt = userService.login(request.getUsername(), request.getPassword());
 
@@ -120,7 +136,7 @@ public class AuthController {
         LocalDateTime expirationTime = LocalDateTime.now().plusHours(1);
         PasswordResetToken resetToken = new PasswordResetToken(user, token, expirationTime);
         passwordResetTokenRepository.save(resetToken);
-        String resetLink = "http://127.0.0.1:5500/frontend/reset-password.html" + "?token=" + token;
+        String resetLink = frontendUrl + "/reset-password.html?token=" + token;
         boolean emailSent = passwordResetEmailService.sendPasswordResetEmail(user.getEmail(), resetLink);
         if (!emailSent) {
             log.warn("Password reset token created for {} but email delivery failed", user.getEmail());
@@ -136,7 +152,7 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         String token = request.get("token");
         String newPassword = request.get("newPassword");
-        if(token == null || token.isBlank() || token.isBlank()){
+        if(token == null || token.isBlank()){
             response.put("message", "Reset token is required");
             return ResponseEntity.badRequest().body(response);
         }
@@ -156,15 +172,5 @@ public class AuthController {
         response.put("message", "Password has been reset successfully. You can now log in with your new password.");
         return ResponseEntity.ok(response);
     }
-    // TEMPORARY TEST ENDPOINT — remove after testing
-@GetMapping("/test-email")
-public ResponseEntity<String> testEmail() {
-    boolean emailSent = passwordResetEmailService.sendPasswordResetEmail("gaminghub271@gmail.com", "http://localhost/reset");
-    if (emailSent) {
-        return ResponseEntity.ok("Email sent successfully!");
-    }
-    return ResponseEntity.status(500)
-        .body("Failed: email delivery is unavailable");
-}
 }
 

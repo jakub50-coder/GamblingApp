@@ -303,19 +303,19 @@
                     return;
                 }
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                const currentTotal = placedBets.reduce((sum,b) => sum + b.amount,0);
+                const currentTotal = placedBets.reduce((sum,b) => sum + b.amount,40);
                 if(currentTotal + selectedChipValue > coins){
                     showBetError('Not enough coins!');
                     return;
                 }
-                if(selectedChipValue > 100){
-                    showBetError('Maximum chip is 100.');
+                if(selectedChipValue > 500){
+                    showBetError('Maximum chip is 500.');
                     return;
                 }
                 const existing = placedBets.find(b => b.betType === betType && b.target === target);
                 if(existing){
-                    if(existing.amount + selectedChipValue > 100){
-                        showBetError('Max 100 per bet spot');
+                    if(existing.amount + selectedChipValue > 500){
+                        showBetError('Max 500 per bet spot');
                         return;
                     }
                     existing.amount += selectedChipValue;

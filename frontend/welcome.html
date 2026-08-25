@@ -355,19 +355,66 @@
                 animateCoins(coinsEl, data.coins);
                 localStorage.setItem('coins', data.coins);
 
-                if(data.secondsUntilRefill && data.secondsUntilRefill > 0){
+                if(data.secondsUntilRefill && data.secondsUntilRefill > 0 && data.coins < 500){
                     startRefillTimer(data.secondsUntilRefill);
                 }
-
-                if(data.coins < 10){
-                    document.getElementById('blackjackBtn').disabled = true;
-                    document.getElementById('blackjackLocked').textContent = 'You need to have at least 10 coins to play this game';
-                }
-                if(data.coins < 5){
-                    document.getElementById('slotsBtn').disabled = true;
-                    document.getElementById('slotCard').classList.add('locked');
-                    document.getElementById('slotsLocked').textContent = 'Need at least 5 coins to play';
-                }
+                const games = [
+                    {
+                        btn: 'blackjackBtn',
+                        card: 'blackjackCard',
+                        locked: 'blackjackLocked',
+                        min: 50,
+                        name: 'Blackjack'
+                    },
+                    {
+                        btn: 'slotsBtn',
+                        card: 'slotsCard',
+                        locked: 'slotsLocked',
+                        min: 20,
+                        name: 'Slots'
+                    },
+                    {
+                        btn: 'rouletteBtn',
+                        card: 'rouletteCard',
+                        locked: 'rouletteLocked',
+                        min: 40,
+                        name: 'Roulette'
+                    },
+                    {
+                        btn: 'baccaratBtn',
+                        card: 'baccaratCard',
+                        locked: 'baccaratLocked',
+                        min: 50,
+                        name: 'Baccarat'
+                    }
+                ];
+                games.forEach(game => {
+                    const btn = document.getElementById(game.btn);
+                    const card = document.getElementById(game.card);
+                    const locked = document.getElementById(game.locked);
+                    if(!btn){
+                        return;
+                    }
+                    if(data.coins < game.min){
+                        btn.disabled = true;
+                        if(card){
+                            card.classList.add('locked');
+                        }
+                        if(locked){
+                            locked.textContent = 
+                                `Need at least ${game.min} ` + `coins to play ${game.name}`;
+                        }
+                    }
+                    else{
+                        btn.disabled = false;
+                        if(card){
+                            card.classList.remove('locked');
+                            if(locked){
+                                locked.textContent = '';
+                            }
+                        }
+                    }
+                });
             }
             //starts the refill time when the user can refill coins
             function startRefillTimer(seconds){
@@ -424,7 +471,7 @@
             //goes to the blackjack game
             function goToBlackjack(){
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                if(coins < 10){
+                if(coins < 50){
                     return;
                 }
                 window.location.href = 'blackjack/blackjack.html';
@@ -432,8 +479,8 @@
             //go to slots game
             function goToSlots(){
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                if(coins < 5){
-                    document.getElementById('slotsLocked').textContent = 'Need at least 5 coins to play';
+                if(coins < 20){
+                    document.getElementById('slotsLocked').textContent = 'Need at least 20 coins to play';
                     return;
                 }
                 window.location.href = 'slots/slots.html';
@@ -441,8 +488,8 @@
             //go to roulette game
             function goToRoulette(){
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                if(coins < 10){
-                    document.getElementById('rouletteLocked').textContent = 'Need at least 10 coins to play';
+                if(coins < 40){
+                    document.getElementById('rouletteLocked').textContent = 'Need at least 40 coins to play';
                     return;
                 }
                 window.location.href = 'roulette/roulette.html';
@@ -450,8 +497,8 @@
             //go to Baccarat
             function goToBaccarat(){
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                if(coins < 10){
-                    document.getElementById('baccaratLocked').textContent = 'Need at least 10 coins to play';
+                if(coins < 50){
+                    document.getElementById('baccaratLocked').textContent = 'Need at least 50 coins to play';
                     return;
                 }
                 window.location.href = 'baccarat/baccarat.html';

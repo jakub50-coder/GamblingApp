@@ -406,8 +406,8 @@
                     showBetError('Not enough coins');
                     return;
                 }
-                if(currentBet + value > 75){
-                    showBetError('Maximum bet is 75 coins.');
+                if(currentBet + value > 1000){
+                    showBetError('Maximum bet is 1000 coins.');
                     return;
                 }
                 currentBet += value;
@@ -424,7 +424,7 @@
             function updateBetDisplay(){
                 document.getElementById('currentBetDisplay').textContent = currentBet;
                 const dealBtn = document.getElementById('dealBtn');
-                dealBtn.disabled = currentBet < 10;
+                dealBtn.disabled = currentBet < 50;
             }
 
             function showBetError(message){
@@ -461,8 +461,8 @@
 
             //Deal Cards
             async function dealCards() {
-                if (currentBet < 10) {
-                    showBetError('Minimum bet is 10 coins.');
+                if (currentBet < 50) {
+                    showBetError('Minimum bet is 50 coins.');
                     return;
                 }
 

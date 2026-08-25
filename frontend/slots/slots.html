@@ -93,7 +93,7 @@
                     <div class="bet-amount">🪙<span id="betDisplay">10</span></div>
                     <button class="bet-btn" onclick="adjustBet(5)">+</button>
                 </div>
-                <div class="bet-limits">Min: 5 · Max:50</div>
+                <div class="bet-limits">Min: 20 · Max: 200</div>
             </div>
             <!--Spin button-->
             <button class="spin-btn" id="spinBtn" onclick="spin()">Spin</button>
@@ -143,7 +143,7 @@
 
          <script>
             const API_BASE = 'https://gamblingapp.onrender.com/api'; //'http://localhost:8080/api';
-            let currentBet = 10;
+            let currentBet = 20;
             let isSpinning = false;
             let hasSeenTutorial = false;
 
@@ -249,11 +249,11 @@
             function adjustBet(amount){
                 const newBet = currentBet + amount;
                 const coins = parseInt(localStorage.getItem('coins') || '0');
-                if(newBet < 5){
-                    currentBet = 5;
+                if(newBet < 20){
+                    currentBet = 20;
                 }
-                else if(newBet > 50){
-                    currentBet = 50;
+                else if(newBet > 200){
+                    currentBet = 200;
                 }
                 else if(newBet > coins){
                     currentBet = Math.floor(coins/5) * 5;

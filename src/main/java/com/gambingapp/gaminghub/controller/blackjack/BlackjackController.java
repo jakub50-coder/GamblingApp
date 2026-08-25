@@ -45,12 +45,12 @@ public class BlackjackController {
         String username = authentication.getName();
         Map<String, Object> errorResponse = new HashMap<>();
 
-        if (request.getBetAmount() < 10) {
-            errorResponse.put("message", "Minimum bet is 10 coins");
+        if (request.getBetAmount() < 50) {
+            errorResponse.put("message", "Minimum bet is 50 coins");
             return ResponseEntity.badRequest().body(errorResponse);
         }
-        if (request.getBetAmount() > 75) {
-            errorResponse.put("message", "Maximum bet is 75 coins");
+        if (request.getBetAmount() > 1000) {
+            errorResponse.put("message", "Maximum bet is 1000 coins");
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
@@ -114,7 +114,7 @@ public class BlackjackController {
         Map<String, Object> response = new HashMap<>();
         int playerCoins = blackjackService.getPlayerCoins(username);
 
-        if (playerCoins < 10) {
+        if (playerCoins < 50) {
             response.put("message", "Not enough coins to start a new round");
             response.put("coins", playerCoins);
             return ResponseEntity.badRequest().body(response);

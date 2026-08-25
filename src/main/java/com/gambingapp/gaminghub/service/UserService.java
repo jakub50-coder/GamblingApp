@@ -43,7 +43,7 @@ public class UserService {
         }
         userRepository.save(user);
 
-        CoinTransaction startingCoins = new CoinTransaction(user, 100, "REFILL", null);
+        CoinTransaction startingCoins = new CoinTransaction(user, 1000, "REFILL", null);
         coinTransactionRepository.save(startingCoins);
         return true;
     }
@@ -73,15 +73,15 @@ public class UserService {
     // Restores coins to 100 if below 100 and 24h have passed
     @Transactional
     public void checkAndRefillCoins(User user) {
-        if (user.getCoins() >= 100) {
+        if (user.getCoins() >= 500) {
             return;
         }
         Duration timeSinceRefill = Duration.between(
             user.getLastRefillAt(), LocalDateTime.now()
         );
         if (timeSinceRefill.toHours() >= 24) {
-            int coinsToAdd = 100 - user.getCoins();
-            user.setCoins(100);
+            int coinsToAdd = 1000;
+            user.setCoins(1000);
             user.setLastRefillAt(LocalDateTime.now());
             userRepository.save(user);
 
@@ -104,7 +104,7 @@ public class UserService {
         if(betAmount <= 0){
             return false;
         }
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsernameForUpdate(username);
         if (userOpt.isEmpty()) {
             return false;
         }
@@ -123,7 +123,7 @@ public class UserService {
     // Awards winnings to a player after a win
     @Transactional
     public void awardWinnings(String username, int amount, String game, String roundId) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsernameForUpdate(username);
         if (userOpt.isEmpty()) {
             return;
         }

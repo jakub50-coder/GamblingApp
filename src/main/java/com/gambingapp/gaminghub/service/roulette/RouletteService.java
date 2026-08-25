@@ -23,7 +23,12 @@ public class RouletteService{
         for (Map<String, Object> betData : betsData) {
             String typeStr = (String) betData.get("betType");
             if (typeStr == null) continue;
-            RouletteBet.BetType betType = RouletteBet.BetType.valueOf(typeStr);
+            RouletteBet.BetType betType;
+            try {
+                betType = RouletteBet.BetType.valueOf(typeStr);
+            } catch (IllegalArgumentException exception) {
+                return Map.of("error", "Invalid bet type: " + typeStr);
+            }
             Number amtNum = (Number) betData.get("amount");
             if (amtNum == null) continue;
             int amount = amtNum.intValue();
@@ -31,7 +36,7 @@ public class RouletteService{
             if (betData.containsKey("target") && betData.get("target") instanceof Number) {
                 target = ((Number) betData.get("target")).intValue();
             }
-            if (amount < 10 || amount > 100) {
+            if (amount < 40 || amount > 500) {
                 continue;
             }
             bets.add(new RouletteBet(betType, amount, target));

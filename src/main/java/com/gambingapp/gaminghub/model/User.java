@@ -47,7 +47,7 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.coins = 100;
+        this.coins = 1000;
         this.lastRefillAt = LocalDateTime.now();
         this.hasSeenBlackjackTutorial = false;
         this.createdAt = LocalDateTime.now();

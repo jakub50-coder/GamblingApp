@@ -12,6 +12,7 @@ import java.util.*;
 @Service
 public class BaccaratService{
     private final UserService userService;
+    private static final Set<String> VALID_BETS = Set.of("PLAYER", "BANKER", "TIE", "PLAYER_PAIR", "BANKER_PAIR");
     
     public BaccaratService(UserService userService){
         this.userService = userService;
@@ -21,13 +22,16 @@ public class BaccaratService{
         String roundId = UUID.randomUUID().toString();
         int totalBet = 0;
         for(Map.Entry<String, Integer> entry: bets.entrySet()){
-            int amount = entry.getValue();
-            if(amount < 10 || amount > 75){
-                continue;
+            if (!VALID_BETS.contains(entry.getKey())) {
+                return Map.of("error", "Invalid bet type: " + entry.getKey());
             }
+            int amount = entry.getValue();
+            if(amount < 50 || amount > 1000) continue;
             totalBet += amount;
         }
-        userService.placeBet(username, totalBet, roundId, "baccarat");
+        if (totalBet <= 0 || !userService.placeBet(username, totalBet, roundId, "baccarat")) {
+            return Map.of("error", "Unable to place bet (insufficient coins)");
+        }
         Deck deck = new Deck(8); //Standard 8 decks for baccarat
 
         //Intially deal 4 cards

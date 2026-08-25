@@ -53,7 +53,7 @@ public class UserController {
         response.put("createdAt", user.getCreatedAt().toString());
         response.put("gamesPlayed", gamesPlayed);
 
-        if (user.getCoins() < 100) {
+        if (user.getCoins() < 500) {
             LocalDateTime refillAt = user.getLastRefillAt().plusHours(24);
             Duration timeUntilRefill = Duration.between(LocalDateTime.now(), refillAt);
 
@@ -106,10 +106,12 @@ public class UserController {
         });
         Map<String, Object> round = roundMap.get(t.getRoundId());
         if(t.getType().equals("BET")){
-            round.put("betAmount",Math.abs(t.getAmount()));
+            int currentBet = (int) round.get("betAmount");
+            round.put("betAmount", currentBet + Math.abs(t.getAmount()));
         }
         else if(t.getType().equals("WIN")){
-            round.put("winAmount", t.getAmount());
+            int currentWin = (int) round.get("winAmount");
+            round.put("winAmount", currentWin + t.getAmount());
         }
        }
        List<Map<String, Object>> displayList = new ArrayList<>();

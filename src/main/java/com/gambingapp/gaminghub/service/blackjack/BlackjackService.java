@@ -28,14 +28,13 @@ public class BlackjackService {
     }
     //start the round by putting a minimum bet and the dealer dealing the cards
     public String startRound(String username, int betAmount) {
-        if (betAmount < 10) {
-            return "Minimum bet is 10 coins";
+        if (betAmount < 50) {
+            return "Minimum bet is 50 coins";
         }
-        if (betAmount > 75) {
-            return "Maximum bet is 75 coins";
+        if (betAmount > 1000) {
+            return "Maximum bet is 1000 coins";
         }
         BlackjackGame game = getOrCreateGame(username);
-        boolean betPlaced = userService.placeBet(username, betAmount, game.getRoundId(), "blackjack");
         // Reset if game is in ROUND_OVER or any other invalid state for betting
         if (game.getPhase() != BlackjackGame.GamePhase.WAITING_FOR_BET) {
             if (game.getPhase() == BlackjackGame.GamePhase.ROUND_OVER) {
@@ -45,7 +44,7 @@ public class BlackjackService {
             }
         }
 
-        if (!userService.placeBet(username, betAmount, game.getRoundId(),"blackjack")) {
+        if (!userService.placeBet(username, betAmount, game.getRoundId(), "blackjack")) {
             return "Not enough coins to place that bet";
         }
 
@@ -343,7 +342,7 @@ public class BlackjackService {
         if(playerCoins < originalBet){
             return "Not enough coins to double down.";
         }
-        boolean betPlaced = userService.placeBet(username, originalBet, game.getRoundId());
+        boolean betPlaced = userService.placeBet(username, originalBet, game.getRoundId(), "blackjack");
         if(!betPlaced){
             return "Not enough coins to double down";
         }

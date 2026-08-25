@@ -29,8 +29,12 @@ public class SlotController{
         Map<String, Object> errorResponse = new HashMap<>();
         Integer betAmount = request.get("betAmount");
 
-        if(betAmount == null || betAmount < 5){
-            errorResponse.put("message", "Minimum bet is 5 coins");
+        if(betAmount == null || betAmount < 20){
+            errorResponse.put("message", "Minimum bet is 20 coins");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        if(betAmount == null || betAmount > 200){
+            errorResponse.put("message", "Maximum bet is 200 coins");
             return ResponseEntity.badRequest().body(errorResponse);
         }
         try{
